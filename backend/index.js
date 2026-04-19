@@ -25,10 +25,10 @@ app.use(express.json());
 //rutas
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/info.html"));
+    res.sendFile(path.join(__dirname, "../Frontend/html/Info.html"));
 });
 app.get("/login", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/login.html"));
+    res.sendFile(path.join(__dirname, "../Frontend/html/login.html"));
 });
 
 //ruta para el login y consulta a la base de datos
@@ -68,7 +68,7 @@ app.get("/registro", (req, res) => {
 
 
 app.get("/inicio", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/admi/panel.html"));
+    res.sendFile(path.join(__dirname, "../Frontend/html/panel.html"));
 });
 
 app.get("/productos", async (req, res) => {

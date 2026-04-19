@@ -22,13 +22,13 @@ document.getElementById("login-forma").addEventListener("submit", async (e) => {
         localStorage.setItem("rol", resJson.rol);
 
         if (resJson.rol === "administrador") {
-            window.location.href = "../admi/panel.html";
+            window.location.href = "/inicio";
         } 
         else if (resJson.rol === "empleado") {
-            window.location.href = "../admi/panel.html";
+            window.location.href = "/inicio";
         } 
         else if (resJson.rol === "cajero") {
-            window.location.href = "../admi/panel.html";
+            window.location.href = "/inicio";
         }
 
     } else {

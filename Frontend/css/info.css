@@ -125,7 +125,12 @@ body {
 }
 
 /* From Uiverse.io by alexmaracinaru */
-button {
+.portal {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1;
+
   cursor: pointer;
   font-weight: 700;
   transition: all 0.2s;
@@ -136,21 +141,21 @@ button {
   display: flex;
   align-items: center;
   font-size: 15px;
+  text-decoration: none;
+  color: black;
 }
 
-
-
-button>svg {
+.portal svg {
   width: 34px;
   margin-left: 10px;
   transition: transform 0.3s ease-in-out;
 }
 
-button:hover svg {
+.portal:hover svg {
   transform: translateX(5px);
 }
 
-button:active {
+.portal:active {
   transform: scale(0.95);
 }
 
