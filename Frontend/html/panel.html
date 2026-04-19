@@ -9,27 +9,44 @@
     <script src="../js/panel.js" defer></script>
 </head>
 <body>
-    <div class="menu">
-        <nav>
-            <ul>
-                <li><a href="/inicio">Dashboard</a></li>
-                <br>
-                <li><a href="/productos">Productos</a></li>
-                <br>
-                <li><a href="/ventas">Ventas</a></li>
-                <br>
-                <li><a href="/reportes">Reportes</a></li>
-                <br>
-                <li><a href="/usuarios">Usuarios</a></li>
-                <br>
-                 <li><a href="/gastos">Gastos</a></li>
-                 <br>
-                <li><a href="/configuracion">Configuración</a></li>
-            </ul>
-        </nav>
-    </div>
-    <div class="form-contenedor">
-        <h1>Apolo3D Database</h1>
-    </div>
+  <div class="layout">
+
+    
+    <aside class="menu" id="menu">
+      <nav>
+        <ul>
+          <li><a href="/inicio">Dashboard</a></li>
+          <li><a href="/productos">Productos</a></li>
+          <li><a href="/ventas">Ventas</a></li>
+          <li><a href="/reportes">Reportes</a></li>
+          <li><a href="/usuarios">Usuarios</a></li>
+          <li><a href="/gastos">Gastos</a></li>
+          <li><a href="/configuracion">Configuración</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="contenido">
+
+     
+      <button class="btn-menu" id="btn">☰</button>
+
+      <div class="form-contenedor">
+        <input type="text" class="buscador" placeholder="search">
+      </div>
+
+
+    </main>
+
+  </div>
+
+  <script>
+    const btn = document.getElementById("btn");
+    const menu = document.getElementById("menu");
+
+    btn.addEventListener("click", () => {
+      menu.classList.toggle("activo");
+    });
+  </script>
 </body>
 </html>
