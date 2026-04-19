@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" href="styles/registro.css">
+    <script src="styles/registro.js" defer></script>
+</head>
+
+<body>
+    <main>
+        <div class="form-contenedor">
+            <h1>Registro </h1>
+            <h2>Administrador</h2>
+            <p>Por favor, introduce las credenciales del nuevo usuario.</p>
+            <form id="registro-forma">
+                <label for="nombre" class="sr-only">Nombre</label>
+                <input type="text" name="nombre" id="nombre" placeholder="Ingrese Nombre">
+
+                <label for="email" class="sr-only">Email</label>
+                <input type="text" name="email" id="email" placeholder="Ingrese  email">
+                <label for="rol" class="sr-only">Rol </label>
+                <select name="rol" id="rol" required>
+                    <option value="">Selecciona un rol</option>
+                    <option value="admin">Administrador</option>
+                    <option value="cajero">Cajero</option>
+                    <option value="empleado">Empleado</option>
+                </select>
+
+                <label for="user" class="sr-only">User</label>
+                <input type="text" name="user" id="user" placeholder="Ingrese  usuario">
+
+                <label for="password" class="sr-only">Contraseña</label>
+                <input type="text" name="password" id="password" placeholder="Ingrese  contraseña">
+                <button type="submit">Registrar</button>
+                <p class="error escondido"> Error al iniciar Sesión</p>
+            </form>
+        </div>
+    </main>
+</body>
+
+</html>
