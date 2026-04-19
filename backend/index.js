@@ -30,6 +30,7 @@ app.get("/", (req, res) => {
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, "../Frontend/login.html"));
 });
+
 //ruta para el login y consulta a la base de datos
 app.post("/login", async (req, res) => {
   const { usuario, password } = req.body;
