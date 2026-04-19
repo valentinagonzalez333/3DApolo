@@ -70,6 +70,24 @@ app.get("/registro", (req, res) => {
 app.get("/inicio", (req, res) => {
     res.sendFile(path.join(__dirname, "../Frontend/html/panel.html"));
 });
+app.get("/productos", (req, res) => {
+    res.sendFile(path.join(__dirname, "../Frontend/html/productos.html"));
+});
+app.get("/ventas", (req, res) => {
+    res.sendFile(path.join(__dirname, "../Frontend/html/ventas.html"));
+});
+app.get("/reportes", (req, res) => {
+    res.sendFile(path.join(__dirname, "../Frontend/html/reportes.html"));
+});
+app.get("/usuarios", (req, res) => {
+    res.sendFile(path.join(__dirname, "../Frontend/html/usuarios.html"));
+});
+app.get("/gastos", (req, res) => {
+    res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html"));
+});
+app.get("/configuracion", (req, res) => {
+    res.sendFile(path.join(__dirname, "../Frontend/html/confi.html"));
+});
 
 app.get("/productos", async (req, res) => {
    const connection = await getConnection();
