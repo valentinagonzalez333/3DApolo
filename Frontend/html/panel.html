@@ -1,17 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrador</title>
-    <link rel="stylesheet" href="../css/panel.css">
-    <script src="../js/panel.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrador</title>
+  <link rel="stylesheet" href="../css/panel.css">
+  <script src="../js/panel.js" defer></script>
+  
 </head>
+
 <body>
   <div class="layout">
 
-    
+
     <aside class="menu" id="menu">
       <nav>
         <ul>
@@ -28,13 +30,66 @@
 
     <main class="contenido">
 
-     
+
       <button class="btn-menu" id="btn">☰</button>
+
+      <!-- From Uiverse.io by Pradeepsaranbishnoi -->
+      <div class="container">
+        <div class="toggle">
+          <input type="checkbox" id="btn_modo">
+          <span class="button"></span>
+          <span class="label">☼</span>
+        </div>
+      </div>
 
       <div class="form-contenedor">
         <input type="text" class="buscador" placeholder="search">
       </div>
 
+<div class="cards">
+
+  <div class="card ventas">
+    <p>Ventas</p>
+    <h2 id="ventas">0</h2>
+  </div>
+
+  <div class="card gastos">
+    <p>Gastos</p>
+    <h2 id="gastos">0</h2>
+  </div>
+
+  <div class="card usuarios">
+    <p>Usuarios</p>
+    <h2 id="usuarios">0</h2>
+  </div>
+
+  <div class="card productos">
+    <p>Productos</p>
+    <h2 id="productos">0</h2>
+  </div>
+
+
+</div>
+
+
+
+
+<div class="calen-table">
+<div class="tabla">
+  <h3>Últimos gastos</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Descripción</th>
+        <th>Monto</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody id="tablaDatos"></tbody>
+  </table>
+</div>
+</div>
+</div>
 
     </main>
 
@@ -49,4 +104,5 @@
     });
   </script>
 </body>
+
 </html>
