@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel - Apolo3D</title>
   <link rel="stylesheet" href="../css/productos.css">
-  <script src="../js/productos.js"></script>
+  <script src="../js/productos.js" defer></script>
 </head>
 
 <body>
@@ -38,12 +38,11 @@
         <input type="text" class="buscador" placeholder="search">
       </div>
 
-      <div class="table">
-        <section class="table-header">
-          <h1>Productos</h1>
-        </section>
 
+      <div class="table">
         <section class="table-body">
+          <h1>Productos</h1>
+          <button class="btn-agregar" onclick="abrirModal()"> Agregar Producto</button>
           <table>
             <thead>
               <tr>
@@ -55,22 +54,83 @@
                 <th>Compra</th>
                 <th>Venta</th>
                 <th>Stock</th>
-                <th>Stock mínimo</th>
+                <th>Min</th>
                 <th>IVA</th>
-                <th>Descuento</th>
+                <th>Desc.</th>
                 <th>Estado</th>
                 <th>Descripción</th>
+                <th>Acciones</th>
               </tr>
             </thead>
-
             <tbody id="tablaProductos"></tbody>
           </table>
         </section>
+
       </div>
 
     </main>
 
+
   </div>
+
+
+//Formulario
+<div id="modalProducto" class="modal">
+  <div class="contenido-formulario">
+
+    <h2 id="tituloProducto">Nuevo Producto</h2>
+
+    <form id="formProducto">
+
+      <input type="hidden" id="productoId">
+
+      <label>Nombre</label>
+      <input type="text" id="nombre">
+
+      <label>Categoría</label>
+      <select id="categoria"></select>
+
+      <label>Proveedor</label>
+      <select id="proveedor"></select>
+
+      <label>Precio compra</label>
+      <input type="number" id="compra">
+
+      <label>Precio venta</label>
+      <input type="number" id="venta">
+
+      <label>Stock</label>
+      <input type="number" id="stock">
+
+      <label>Stock mínimo</label>
+      <input type="number" id="stockMin">
+
+      <label>IVA</label>
+      <input type="number" id="iva">
+
+      <label>Descuento</label>
+      <input type="number" id="descuenti">
+
+      <label>Descripción</label>
+      <textarea id="descripcion"></textarea>
+
+      <label>Imagen</label>
+      <input type="file" id="imagen">
+
+      <label>Estado</label>
+      <select id="estado">
+        <option value="1">Activo</option>
+        <option value="0">Inactivo</option>
+      </select>
+
+      <div class="modal-buttons">
+        <button type="submit">Guardar</button>
+        <button type="button" id="cerrarModalProducto">Cancelar</button>
+      </div>
+
+    </form>
+  </div>
+</div>
 
   <script>
     const btn = document.getElementById("btn");

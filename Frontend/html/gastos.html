@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel - Apolo3D</title>
+    <link rel="stylesheet" href="../css/gatos.css">
+    <script src="../js/gastos.js" defer></script>
+</head>
+
+
+<body>
+
+    <div class="layout">
+
+
+        <aside class="menu" id="menu">
+            <nav>
+                <ul>
+                    <li><a href="/inicio">Dashboard</a></li>
+                    <li><a href="/productos">Productos</a></li>
+                    <li><a href="/ventas">Ventas</a></li>
+                    <li><a href="/reportes">Reportes</a></li>
+                    <li><a href="/usuarios">Usuarios</a></li>
+                    <li><a href="/gastos">Gastos</a></li>
+                    <li><a href="/configuracion">Configuración</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="contenido">
+
+            <button class="btn-menu" id="btn">☰</button>
+
+            <div class="form-contenedor">
+                <input type="text" class="buscador" placeholder="search">
+            </div>
+            <h1>Gastos Apolo3D</h1>
+
+            <div class="cards">
+                <div class="card">
+                    <p>Total Gastos</p>
+                    <h2 id="total"></h2>
+                </div>
+
+                <div class="card">
+                    <p>Gastos del Mes</p>
+                    <h2 id="mensual"></h2>
+                </div>
+
+                <div class="card">
+                    <p>Mayor Gasto</p>
+                    <h2 id="mayor"></h2>
+                </div>
+
+                <div class="card">
+                    <p>Categorías</p>
+                    <h2 id="categorias"></h2>
+                </div>
+            </div>
+
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Descripción</th>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-gastos">
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="acciones-principales">
+                <button id="btnAbrirAgregar" class="btn-nuevo"> Nuevo Gasto</button>
+            </div>
+
+            <div id="gasto" class="modal">
+                <div class="contenido-formulario">
+                    <h2 id="modalTitulo">Agregar Gasto</h2>
+                    <form id="formGasto">
+                        <input type="hidden" id="gastoId"> <label>Descripción:</label>
+                        <input type="text" id="desc" required>
+
+                        <label>Monto:</label>
+                        <input type="number" id="monto" step="0.01" required>
+                        <label>Fecha de Pago:</label>
+                        <input type="date" id="fecha_pago" required>
+                        <label>Tipo:</label>
+                        <select id="tipo">
+                            <option value="Fijo">Fijo</option>
+                            <option value="Variable">Variable</option>
+                        </select>
+
+                        <div class="modal-buttons">
+                            <button type="submit" class="btn-guardar">Guardar</button>
+                            <button type="button" id="btnCerrar" class="btn-cancelar">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const btn = document.getElementById("btn");
+        const menu = document.getElementById("menu");
+
+        btn.addEventListener("click", () => {
+            menu.classList.toggle("activo");
+        });
+    </script>
+
+</body>
+
+</html>

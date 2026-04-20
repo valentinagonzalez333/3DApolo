@@ -1,3 +1,4 @@
+
 import { getConnection } from './db_conectar.js';
 
 export const obtenerProductos = async () => {
@@ -26,4 +27,38 @@ export const obtenerProductos = async () => {
   `);
 
   return rows;
+};
+
+
+export const insertarProducto = async (data) => {
+  const conexion = await getConnection();
+
+  await conexion.execute(`
+    INSERT INTO productos
+    (nombre, categoria_id, proveedor_id, precio_compra, precio_venta,
+     stock, stock_minimo, iva, descuenti, descripcion, estado, url)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `, data);
+};
+
+
+export const actualizarProducto = async (id, data) => {
+  const conexion = await getConnection();
+
+  await conexion.execute(`
+    UPDATE productos SET
+      nombre = ?,
+      categoria_id = ?,
+      proveedor_id = ?,
+      precio_compra = ?,
+      precio_venta = ?,
+      stock = ?,
+      stock_minimo = ?,
+      iva = ?,
+      descuenti = ?,
+      descripcion = ?,
+      estado = ?,
+      url = ?
+    WHERE id_producto = ?
+  `, [...data, id]);
 };
