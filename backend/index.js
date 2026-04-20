@@ -4,31 +4,33 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 
+
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-import  {getConnection}  from './modelo/db_conectar.js';
+import { getConnection } from './modelo/db_conectar.js';
 
 //server
 const app = express();
-app.set('port',4000);
-app.listen (app.get('port'));
-console.log ("Servidor corriendo en puerto", app.get('port'));
+app.set('port', 4000);
+app.listen(app.get('port'));
+console.log("Servidor corriendo en puerto", app.get('port'));
 
 //configuracion estatica para acceder a los archivos del frontend
 app.use(express.static(path.join(__dirname, "../Frontend")));
 
 //middleware 
 app.use(cors({
-    origin: 'http://localhost:4000',
+  origin: 'http://localhost:4000',
 }));
 app.use(express.json());
 
 //rutas
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/html/Info.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/html/Info.html"));
 });
 app.get("/login", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/html/login.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/html/login.html"));
 });
 
 //ruta para el login y consulta a la base de datos
@@ -46,7 +48,7 @@ app.post("/login", async (req, res) => {
     if (resultados.length > 0) {
       const user = resultados[0];
 
-      res.json({ 
+      res.json({
         ok: true,
         rol: user.rol,
         usuario: user.usuario
@@ -62,37 +64,55 @@ app.post("/login", async (req, res) => {
   }
 });
 
+//productos
+import { obtenerProductos } from './modelo/productos.js';
+app.use('/img', express.static('../frontend/img'));
+
+app.get('/productos', (req, res) => {
+  res.sendFile(path.join(__dirname, '../Frontend/html/productos.html'));
+});
+
+
+app.get('/api/productos', async (req, res) => {
+  try {
+    const productos = await obtenerProductos();
+    res.json(productos);
+  } catch (error) {
+    res.status(500).json({ error: "Error" });
+  }
+});
+
 app.get("/registro", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/registro.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/registro.html"));
 });
 
 
 app.get("/inicio", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/html/panel.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/html/panel.html"));
 });
 app.get("/productos", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/html/productos.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/html/productos.html"));
 });
 app.get("/ventas", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/html/ventas.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/html/ventas.html"));
 });
 app.get("/reportes", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/html/reportes.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/html/reportes.html"));
 });
 app.get("/usuarios", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/html/usuarios.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/html/usuarios.html"));
 });
 app.get("/gastos", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html"));
 });
 app.get("/configuracion", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Frontend/html/confi.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/html/confi.html"));
 });
 
 app.get("/productos", async (req, res) => {
-   const connection = await getConnection();
- const result =  await connection.query("SELECT * from productos");
-res.json(result);
+  const connection = await getConnection();
+  const result = await connection.query("SELECT * from productos");
+  res.json(result);
 
 });
 

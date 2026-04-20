@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel - Apolo3D</title>
   <link rel="stylesheet" href="../css/productos.css">
+  <script src="../js/productos.js"></script>
 </head>
 
 <body>
 
   <div class="layout">
 
-    <!-- MENÚ -->
+
     <aside class="menu" id="menu">
       <nav>
         <ul>
@@ -26,10 +28,10 @@
       </nav>
     </aside>
 
-  
+
     <main class="contenido">
 
-    
+
       <button class="btn-menu" id="btn">☰</button>
 
       <div class="form-contenedor">
@@ -46,17 +48,22 @@
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Foto</th>
                 <th>Nombre</th>
-                <th>Precio</th>
-                <th>Costo</th>
                 <th>Categoría</th>
+                <th>Proveedor</th>
+                <th>Compra</th>
+                <th>Venta</th>
                 <th>Stock</th>
                 <th>Stock mínimo</th>
-                <th>Proveedor</th>
-                <th>Ganancia %</th>
+                <th>IVA</th>
+                <th>Descuento</th>
+                <th>Estado</th>
                 <th>Descripción</th>
               </tr>
             </thead>
+
+            <tbody id="tablaProductos"></tbody>
           </table>
         </section>
       </div>
@@ -75,4 +82,5 @@
   </script>
 
 </body>
+
 </html>
