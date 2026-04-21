@@ -82,7 +82,7 @@ window.prepararEdicion = (id, desc, monto, tipo, fecha) => {
     }
     
     document.getElementById('modalTitulo').innerText = "Editar Gasto";
-    modal.style.display = "block";
+   modal.style.display = "flex";
 };
 
 // ventana
@@ -93,7 +93,7 @@ document.getElementById('btnAbrirAgregar').addEventListener('click', () => {
     form.reset();
     document.getElementById('gastoId').value = "";
     document.getElementById('modalTitulo').innerText = "Nuevo Gasto";
-    modal.style.display = "block";
+    modal.style.display = "flex";
 });
 
 document.getElementById('btnCerrar').addEventListener('click', () => {

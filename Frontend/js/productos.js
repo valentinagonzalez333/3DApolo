@@ -24,7 +24,7 @@ const formProducto = document.getElementById("formProducto");
         <td>${p.stock_minimo}</td>
         <td>${p.iva ?? 0}%</td>
         <td>${p.descuenti ?? 0}%</td>
-        <td>${p.estado == 1 ? '✅' : '❌'}</td>
+        <td>${p.estado == 1 ? 'Activo' : '❌'}</td>
         <td>${p.descripcion || ""}</td>
        <td>
   <button onclick='editar(${JSON.stringify(p)})'>✏️</button>
@@ -42,10 +42,18 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 const abrirModal = () => {
   modal.style.display = "flex";
+  formProducto.reset();
+  productoId.value = "";
+  editando = false;
 };
 
 const cerrarModal = () => {
   modal.style.display = "none";
+
+  // limpia
+  formProducto.reset();
+  productoId.value = "";
+  editando = false;
 };
 const cargarSelects = async () => {
   const cat = await fetch('http://localhost:4000/api/categorias').then(r=>r.json());
