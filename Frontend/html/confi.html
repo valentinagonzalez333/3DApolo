@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apolo3D</title>
-    <link rel="stylesheet" href="../css/confi.css">
-    <script src="../js/conf.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apolo3D</title>
+  <link rel="stylesheet" href="../css/confi.css">
+  <script src="../js/conf.js" defer></script>
 </head>
+
 <body>
   <div class="layout">
- <aside class="menu" id="menu">
+
+    <!-- 🔹 MENU -->
+    <aside class="menu" id="menu">
       <nav>
         <ul>
           <li><a href="/inicio">Dashboard</a></li>
@@ -23,12 +27,12 @@
       </nav>
     </aside>
 
+    <!-- 🔹 CONTENIDO -->
     <main class="contenido">
 
-
+      <!-- 🔝 NO SE TOCA -->
       <button class="btn-menu" id="btn">☰</button>
 
-      <!-- From Uiverse.io by Pradeepsaranbishnoi -->
       <div class="container">
         <div class="toggle">
           <input type="checkbox" id="btn_modo">
@@ -38,23 +42,59 @@
       </div>
 
       <div class="form-contenedor">
-        <input type="text" class="buscador" placeholder="  search">
+        <input type="text" class="buscador" placeholder="search">
       </div>
 
+      <!-- 🔥 SOLO ESTA PARTE SE ORGANIZA -->
+      <div class="config-layout">
+
+        <!-- 🔸 IZQUIERDA -->
+        <div class="panel-main">
+
+          <!-- ADMIN -->
+          <div id="adminPanel" style="display:none;">
+            <h2>Gestión de Usuarios</h2>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tablaUsuarios"></tbody>
+            </table>
+
+            <button id="agregarUser">Agregar Usuario</button>
+          </div>
+
+          <!-- USUARIO NORMAL -->
+          <div id="userPanel" style="display:none;">
+            <h2>Cambiar contraseña</h2>
+
+            <input type="password" id="nuevaPass" placeholder="Nueva contraseña">
+            <button id="btnCambiarPass">Guardar</button>
+          </div>
+
+        </div>
+
+        <!-- 🔸 DERECHA -->
+        <div class="panel-user">
+          <div class="confi">
+            <img src="../img/icono_user.png" alt="">
+            <h2 id="usuario"></h2>
+            <h3 id="rol"></h3>
+            <button id="cerrar">Cerrar sesión</button>
+          </div>
+        </div>
+
+      </div>
 
     </main>
- 
-    <div class="confi">
-      <img src="../img/icono_user.png" alt="">
-      <h2 id="usuario"></h2>
-      <h3 id="rol"></h3>
-
-
-
-    </div>
-
   </div>
 
+  <!-- 🔹 SCRIPT MENU -->
   <script>
     const btn = document.getElementById("btn");
     const menu = document.getElementById("menu");
@@ -63,5 +103,7 @@
       menu.classList.toggle("activo");
     });
   </script>
+
 </body>
+
 </html>

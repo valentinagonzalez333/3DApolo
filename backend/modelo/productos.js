@@ -1,5 +1,5 @@
 
-import { getConnection } from './db_conectar.js';
+import { getConnection } from "./db_conectar.js";
 
 export const obtenerProductos = async () => {
   const conexion = await getConnection();

@@ -19,17 +19,12 @@ document.getElementById("login-forma").addEventListener("submit", async (e) => {
 
     if (resJson.ok) {
 
+        // 🔥 GUARDAR TODO
+        localStorage.setItem("usuario", resJson.usuario);
         localStorage.setItem("rol", resJson.rol);
 
-        if (resJson.rol === "administrador") {
-            window.location.href = "/inicio";
-        } 
-        else if (resJson.rol === "empleado") {
-            window.location.href = "/inicio";
-        } 
-        else if (resJson.rol === "cajero") {
-            window.location.href = "/inicio";
-        }
+        // Redirección
+        window.location.href = "/inicio";
 
     } else {
         mensajeError.classList.remove("escondido");

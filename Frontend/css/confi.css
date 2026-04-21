@@ -242,7 +242,208 @@ body.dark-mode .btn-menu {
 
 /*contenido de configuración*/
 
-img{
-  width: 100px;
-  padding: 120px 120px;
+.confi img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 3px solid var(--naranja);
+  object-fit: cover;
+}
+.panel-user {
+  display: flex;
+  justify-content: center;
+}
+
+.confi {
+  width: 100%;
+  max-width: 260px;
+  background: var(--card);
+  padding: 25px;
+  border-radius: 20px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.confi:hover {
+  transform: translateY(-5px);
+}
+#usuario {
+  font-size: 20px;
+  font-weight: bold;
+}
+#rol {
+  font-size: 14px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--naranja-soft);
+  color: var(--naranja);
+}
+#cerrar {
+  margin-top: 10px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 10px;
+  background: #ff4d4d;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#cerrar:hover {
+  background: #e60000;
+}
+#adminPanel, #userPanel {
+  margin-top: 40px;
+  background: var(--card);
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+table {
+  width: 100%;
+   border-spacing: 5px 8px; 
+  font-size: 14px;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+
+
+th {
+  text-align: left;
+  padding: 8px 10px;
+  color: #8a6b55;
+  font-weight: 500;
+}
+
+td {
+  background: #ffffff;
+  padding: 10px 12px; 
+  border-radius: 10px;
+  color: #4a3a2c;
+}
+
+tr:hover td {
+  background: #f3e7db;
+}
+
+
+td:first-child {
+  font-weight: bold;
+  color: #a44a1c;
+}
+
+body.dark-mode tbody tr:nth-child(even) {
+  background: #1f1f1f;
+}
+
+td button {
+ margin: 2px;
+  background: var(--naranja);
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+
+}
+
+#agregarUser {
+  margin-top: 15px;
+  padding: 10px 15px;
+  background: var(--naranja);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+body.dark-mode .table {
+  background: #1a1410;
+}
+
+body.dark-mode td {
+  background: #2a1e18;
+  color: #e6d5c3;
+}
+
+body.dark-mode tr:hover td {
+  background: #3a2a22;
+}
+
+body.dark-mode th {
+  color: #b89b84;
+}
+
+#agregarUser:hover {
+  background: #e65c00;
+}
+#userPanel input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+body.dark-mode #userPanel input {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: white;
+}
+
+#btnCambiarPass {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px;
+  background: var(--naranja);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#btnCambiarPass:hover {
+  background: #e65c00;
+}
+#adminPanel h2,
+#userPanel h2 {
+  margin-bottom: 10px;
+}
+.config-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+.panel-main {
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .config-layout {
+    grid-template-columns: 1fr;
+  }
 }

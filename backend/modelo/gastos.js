@@ -1,5 +1,5 @@
 
-import { getConnection } from './db_conectar.js';
+import { getConnection } from "./db_conectar.js";
 
 // Obtener todos los gastos
 export const obtenergastos = async () => {

@@ -1,124 +1,238 @@
-
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import multer from 'multer';
 
-import { 
+// 🔹 MODELOS
+import { getConnection } from "./modelo/db_conectar.js";
+// PRODUCTOS
+import {
   insertarProducto,
-  actualizarProducto
+  actualizarProducto,
+  obtenerProductos
 } from './modelo/productos.js';
 
-import { getConnection } from './modelo/db_conectar.js';
-import { obtenerProductos } from './modelo/productos.js';
-import { obtenergastos } from './modelo/gastos.js';
-
-import { 
-  agregarGasto, 
-  eliminarGastoDB, 
-  actualizarGasto 
+// GASTOS
+import {
+  obtenergastos,
+  agregarGasto,
+  eliminarGastoDB,
+  actualizarGasto
 } from './modelo/gastos.js';
 
+// USUARIOS
+import {
+  getUsuarios,
+  crearUsuario,
+  getUsuario,
+  actualizarUsuario,
+  cambiarPassword,
+  eliminarUsuario
+} from "./modelo/usuarios.js";
+
+// CONFIG
+import * as confModel from "./modelo/confi.js";
+
+// 🔹 CONFIG APP
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Server 
+// 🔹 SERVER
 app.set('port', 4000);
-app.listen(app.get('port'));
-console.log("Servidor corriendo en puerto", app.get('port'));
+app.listen(app.get('port'), () => {
+  console.log(" Servidor corriendo en puerto", app.get('port'));
+});
 
-// configuracion estatica para el frontend
-app.use(express.static(path.join(__dirname, "../Frontend")));
-app.use('/uploads', express.static('uploads'));
-app.use('/img', express.static('../frontend/img'));
-
-// Middleware
-app.use(cors({
-  origin: 'http://localhost:4000',
-}));
+// 🔹 MIDDLEWARE
+app.use(cors()); // más simple
 app.use(express.json());
 
-// Rotas
+// 🔹 ESTÁTICOS
+app.use(express.static(path.join(__dirname, "../Frontend")));
+app.use('/uploads', express.static('uploads'));
+app.use('/img', express.static('../Frontend/img'));
 
-// Rutas generales
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/html/Info.html"));
-});
 
-app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/html/login.html"));
-});
+// ==================================================
+// 🌐 RUTAS VISTAS (HTML)
+// ==================================================
 
-app.get("/registro", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/registro.html"));
-});
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/Info.html"))
+);
 
-app.get("/inicio", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/html/panel.html"));
-});
+app.get("/login", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/login.html"))
+);
 
-app.get("/ventas", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/html/ventas.html"));
-});
+app.get("/inicio", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/panel.html"))
+);
 
-app.get("/reportes", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/html/reportes.html"));
-});
+app.get("/productos", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/productos.html"))
+);
 
-app.get("/usuarios", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/html/usuarios.html"));
-});
+app.get("/ventas", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/ventas.html"))
+);
 
-app.get("/gastos", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html"));
-});
+app.get("/reportes", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/reportes.html"))
+);
 
-app.get("/configuracion", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/html/confi.html"));
-});
-// Login
+app.get("/usuarios", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/usuarios.html"))
+);
+
+app.get("/gastos", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html"))
+);
+
+app.get("/configuracion", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/confi.html"))
+);
+
+
+// ==================================================
+// 🔐 LOGIN
+// ==================================================
+
 app.post("/login", async (req, res) => {
   const { usuario, password } = req.body;
 
   try {
     const connection = await getConnection();
 
-    const [resultados] = await connection.query(
-      "SELECT usuario, rol FROM usuarios WHERE usuario = ? AND contrasena = ?",
-      [usuario, password]
+    const [rows] = await connection.query(
+      "SELECT * FROM usuarios WHERE usuario = ?",
+      [usuario]
     );
 
-    if (resultados.length > 0) {
-      const user = resultados[0];
+    if (rows.length > 0) {
+      const user = rows[0];
 
+      // ⚠️ aquí puedes usar bcrypt después
+      if (user.contrasena === password) {
+        return res.json({
+          ok: true,
+          usuario: user.usuario,
+          rol: user.rol
+        });
+      }
+    }
+
+    res.json({ ok: false });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ ok: false });
+  }
+});
+
+
+// ==================================================
+// ⚙️ CONFIGURACIÓN (usuario logueado)
+// ==================================================
+
+app.get("/api/conf", async (req, res) => {
+  try {
+    const { usuario } = req.query;
+
+    const resultados = await confModel.obtenerUsuario(usuario);
+
+    if (resultados.length > 0) {
       res.json({
         ok: true,
-        rol: user.rol,
-        usuario: user.usuario
+        usuario: resultados[0].usuario,
+        rol: resultados[0].rol
       });
-
     } else {
       res.json({ ok: false });
     }
 
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ ok: false });
   }
 });
 
-// Productos
-app.get('/productos', (req, res) => {
-  res.sendFile(path.join(__dirname, '../Frontend/html/productos.html'));
+
+// ==================================================
+// 👤 USUARIOS (CRUD)
+// ==================================================
+
+app.get("/api/usuarios", async (req, res) => {
+  try {
+    const data = await getUsuarios();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ ok: false });
+  }
 });
+
+app.get("/api/usuarios/:id", async (req, res) => {
+  try {
+    const user = await getUsuario(req.params.id);
+    res.json(user);
+  } catch {
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.post("/api/usuarios", async (req, res) => {
+  try {
+    await crearUsuario(req.body);
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.put("/api/usuarios/:id", async (req, res) => {
+  try {
+    await actualizarUsuario(req.params.id, req.body);
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.post("/api/usuarios/pass/:id", async (req, res) => {
+  try {
+    const ok = await cambiarPassword(
+      req.params.id,
+      req.body.actual,
+      req.body.nueva
+    );
+
+    res.json({ ok });
+  } catch {
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.delete("/api/usuarios/:id", async (req, res) => {
+  try {
+    await eliminarUsuario(req.params.id);
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ ok: false });
+  }
+});
+
+
+// ==================================================
+// 📦 PRODUCTOS
+// ==================================================
 
 app.get('/api/productos', async (req, res) => {
   try {
     const productos = await obtenerProductos();
     res.json(productos);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: "Error" });
   }
 });
@@ -142,7 +256,6 @@ app.post('/api/productos', upload.single('imagen'), async (req, res) => {
   ];
 
   await insertarProducto(data);
-
   res.json({ ok: true });
 });
 
@@ -165,64 +278,34 @@ app.put('/api/productos/:id', upload.single('imagen'), async (req, res) => {
   ];
 
   await actualizarProducto(req.params.id, data);
-
   res.json({ ok: true });
 });
 
 app.delete('/api/productos/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-
     const conexion = await getConnection();
 
     const [result] = await conexion.execute(
       'DELETE FROM productos WHERE id_producto = ?',
-      [id]
+      [req.params.id]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Producto no encontrado" });
+      return res.status(404).json({ error: "No encontrado" });
     }
 
     res.json({ ok: true });
 
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
 
-app.get('/api/categorias', async (req, res) => {
-  const conexion = await getConnection();
-  const [rows] = await conexion.execute('SELECT * FROM categorias');
-  res.json(rows);
-});
 
-app.get('/api/proveedores', async (req, res) => {
-  const conexion = await getConnection();
-  const [rows] = await conexion.execute('SELECT * FROM proveedor');
-  res.json(rows);
-});
+// ==================================================
+// 💸 GASTOS
+// ==================================================
 
-// Usuarios
-app.get('/api/usuarios', async (req, res) => {
-  try {
-    const conexion = await getConnection();
-
-    const [rows] = await conexion.execute(`
-      SELECT id_usuario, nombre 
-      FROM usuarios
-      WHERE estado = 1
-    `);
-
-    res.json(rows);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error al obtener usuarios" });
-  }
-});
-
-// Gastos
 app.get('/api/gastos', async (req, res) => {
   try {
     const gastos = await obtenergastos();
@@ -235,36 +318,26 @@ app.get('/api/gastos', async (req, res) => {
 app.post('/api/gastos', async (req, res) => {
   try {
     await agregarGasto(req.body);
-    res.json({ message: "Gasto creado con éxito" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.delete('/api/gastos/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await eliminarGastoDB(id);
-    
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Gasto no encontrado" });
-    }
-    res.json({ message: "Gasto eliminado" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ ok: false });
   }
 });
 
 app.put('/api/gastos/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await actualizarGasto(id, req.body);
-    
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Gasto no encontrado" });
-    }
-    res.json({ message: "Gasto actualizado" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    await actualizarGasto(req.params.id, req.body);
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ ok: false });
+  }
+});
+
+app.delete('/api/gastos/:id', async (req, res) => {
+  try {
+    await eliminarGastoDB(req.params.id);
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ ok: false });
   }
 });
