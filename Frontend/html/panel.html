@@ -7,7 +7,7 @@
   <title>Administrador</title>
   <link rel="stylesheet" href="../css/panel.css">
   <script src="../js/panel.js" defer></script>
-  
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -43,40 +43,43 @@
       </div>
 
       <div class="form-contenedor">
-        <input type="text" class="buscador" placeholder="search">
+        <input type="text" class="buscador" placeholder="  search">
       </div>
 
 <div class="cards">
 
   <div class="card ventas">
+    <i data-lucide="trending-up"></i>
     <p>Ventas</p>
     <h2 id="ventas">0</h2>
   </div>
 
   <div class="card gastos">
+    <i data-lucide="wallet"></i>
     <p>Gastos</p>
     <h2 id="gastos">0</h2>
   </div>
 
   <div class="card usuarios">
+    <i data-lucide="users"></i>
     <p>Usuarios</p>
     <h2 id="usuarios">0</h2>
   </div>
 
   <div class="card productos">
+    <i data-lucide="package"></i>
     <p>Productos</p>
     <h2 id="productos">0</h2>
   </div>
 
-
 </div>
 
-
-
-
-<div class="calen-table">
 <div class="tabla">
-  <h3>Últimos gastos</h3>
+  <div class="tabla-header">
+    <h3><i data-lucide="receipt"></i> Registro del día</h3>
+    <span>últimos movimientos</span>
+  </div>
+
   <table>
     <thead>
       <tr>
@@ -85,12 +88,10 @@
         <th>Fecha</th>
       </tr>
     </thead>
+
     <tbody id="tablaDatos"></tbody>
   </table>
 </div>
-</div>
-</div>
-
     </main>
 
   </div>

@@ -75,6 +75,9 @@ app.get("/gastos", (req, res) => {
   res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html"));
 });
 
+app.get("/configuracion", (req, res) => {
+  res.sendFile(path.join(__dirname, "../Frontend/html/confi.html"));
+});
 // Login
 app.post("/login", async (req, res) => {
   const { usuario, password } = req.body;

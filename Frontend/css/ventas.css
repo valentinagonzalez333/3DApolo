@@ -1,15 +1,46 @@
-
-
-body{
+body {
+  background: linear-gradient(120deg, #f6f7fb, #eef1f7);
+  color: var(--texto);
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f0f0f0;
-  color: #333;
+}
+h2, h3 {
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.contenido {
+  flex: 1;
+  padding: 20px;
+}
+
+:root {
+  --naranja: #ff6b00;
+  --naranja-soft: #fff1e6;
+  --verde-soft: #e8f8f1;
+  --rojo-soft: #fdeaea;
+  --azul-soft: #eaf3ff;
+
+  --fondo: #f6f7fb;
+  --card: #ffffff;
+  --texto: #2d2d2d;
+}
+
+
 body.dark-mode {
-  background: #121212;
-  color: #e5e5e5;
+  --fondo: #0f0f0f;
+  --card: #1a1a1a;
+  --texto: #eaeaea;
+background: radial-gradient(circle at top, #1a1a1a, #0d0d0d);
+  --naranja-soft: rgba(255,107,0,0.15);
+  --verde-soft: rgba(40,167,69,0.15);
+  --rojo-soft: rgba(220,53,69,0.15);
+  --azul-soft: rgba(0,123,255,0.15);
 }
 
 body.dark-mode .contenido {
@@ -17,12 +48,22 @@ body.dark-mode .contenido {
 }
 
 body.dark-mode .menu {
-  background: #181818;
-  border-right: 1px solid #2a2a2a;
+  background: linear-gradient(180deg, #141414, #0f0f0f);
+  box-shadow: 5px 0 30px rgba(0,0,0,0.6);
 }
 
 body.dark-mode .menu a {
-  color: #e5e5e5;
+  color: #bbb;
+}
+
+body.dark-mode .menu a:hover {
+  background: rgba(255, 107, 0, 0.2);
+  color: #ff8c42;
+}
+
+body.dark-mode .menu a.active {
+  background: linear-gradient(135deg, #ff6b00, #ff8c42);
+  color: white;
 }
 body.dark-mode .buscador {
   background: #2a2a2a;
@@ -30,19 +71,113 @@ body.dark-mode .buscador {
   border: 1px solid #444;
 }
 
-body.dark-mode #btn_modo {
-  background: #e5e5e5;
-  color: #121212;
-}
-/* From Uiverse.io by Pradeepsaranbishnoi */ 
-.toggle {
-  display: inline-block;
+
+
+
+
+/* menu*/
+.menu {
+  width: 220px;
+  background: linear-gradient(180deg, #ffffff, #f7f7f7);
+  border-right: none;
+  padding-top: 40px;
+  box-shadow: 5px 0 30px rgba(0,0,0,0.05);
 }
 
+.menu nav ul {
+  padding: 20px;
+  gap: 10px;
+}
+
+.menu li {
+  list-style: none;
+}
+
+.menu a {
+  display: block;
+  padding: 12px 15px;
+  border-radius: 12px;
+  color: #333;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+
+.menu a:hover {
+  background: rgba(255, 107, 0, 0.1);
+  color: var(--naranja);
+}
+
+.menu a.active {
+  background: var(--naranja);
+  color: white;
+}
+
+/* buscador */
+.form-contenedor {
+  display: flex;
+  justify-content: center;
+  margin: 60px 0 40px 0;
+  position: relative;
+}
+
+
+.form-contenedor::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  width: 0%;
+  height: 2px;
+  background: #ff6b00;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+
+.form-contenedor:focus-within::after {
+  width: 40%; 
+}
+
+.buscador {
+  padding: 10px;
+  width: 60%;
+  max-width: 500px;
+  border: none;
+  border-radius: 20px;
+  background-color: white;
+}
+
+.buscador:hover{
+   border-radius:0px;
+}
+.buscador:focus {
+  outline: none;
+  border: none;
+  border-radius: 0px;
+}
+
+/*hamburguesa*/
+.btn-menu {
+  display: none;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+.container {
+  position: absolute;
+  top: 15px;
+  left: 250px;
+}
+
+/* boton modo */
 .toggle {
   position: relative;
-  height: 50px;
+  display: inline-block;
   width: 70px;
+  height: 50px;
 }
 
 .toggle:before {
@@ -57,6 +192,31 @@ body.dark-mode #btn_modo {
   width: 42px;
   left: 50%;
   top: 50%;
+}
+
+.toggle input {
+  opacity: 0;
+  position: absolute;
+  cursor: pointer;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
+}
+
+.toggle .label {
+  transition: color 300ms ease-out;
+  line-height: 101px;
+  text-align: center;
+  position: absolute;
+  font-weight: 700;
+  font-size: 28px;
+  display: block;
+  opacity: 0.9;
+  height: 100%;
+  width: 100%;
+  color: rgba(0, 0, 0, 0.9);
 }
 
 .toggle .button {
@@ -74,105 +234,7 @@ body.dark-mode #btn_modo {
   top: 50%;
 }
 
-.toggle .label {
-  transition: color 300ms ease-out;
-  line-height: 101px;
-  text-align: center;
-  position: absolute;
-  font-weight: 700;
-  font-size: 28px;
-  display: block;
-  opacity: 0.9;
-  height: 100%;
-  width: 100%;
-  color: rgba(0, 0, 0, 0.9);
-}
 
-.toggle input {
-  opacity: 0;
-  position: absolute;
-  cursor: pointer;
-  z-index: 1;
-  height: 100%;
-  width: 100%;
-  left: 0;
-  top: 0;
-}
-
-.toggle input:active ~ .button {
-  filter: blur(0.5px);
-  box-shadow: 0 12px 25px -4px rgba(0, 0, 0, 0.4), inset 0 -8px 30px 1px rgba(255, 255, 255, 0.9), 0 -10px 15px -1px rgba(255, 255, 255, 0.6), inset 0 8px 25px 0 rgba(0, 0, 0, 0.4), inset 0 0 10px 1px rgba(255, 255, 255, 0.6);
-}
-
-.toggle input:active ~ .label {
-  font-size: 26px;
-  color: rgba(0, 0, 0, 0.45);
-}
-
-.toggle input:checked ~ .button {
-  filter: blur(0.5px);
-  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.4), inset 0 -8px 25px -1px rgba(255, 255, 255, 0.9), 0 -10px 15px -1px rgba(255, 255, 255, 0.6), inset 0 8px 20px 0 rgba(0, 0, 0, 0.2), inset 0 0 5px 1px rgba(255, 255, 255, 0.6);
-}
-
-.toggle input:checked ~ .label {
-  color: rgba(0, 0, 0, 0.8);
-}
-
-
-.dark-mode #btn_modo{
-  background-color: #ddd;
-  color: #333;
-}
-
-.layout{
-  display: flex;
-  min-height: 100vh;
-}
-
-
-.menu{
-  background: #ffffff;
-  border-right: 1px solid #ddd;
-  transition: transform 0.3s ease;
-  padding-top: 60px;
-}
-
-.menu nav ul{
-  list-style: none;
-  
-  padding: 40px 40px;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  line-height: 4;
-  width: 150px;
-  text-align: center;
-}
-
-.menu nav ul li a{
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
-}
-
-
-.contenido{
-  flex: 1;
-  padding: 20px;
-}
-
-
-.form-contenedor{
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.buscador{
-  padding: 10px;
-  width: 60%;
-  max-width: 500px;
-}
 
 .btn-menu{
   display: none;

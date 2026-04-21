@@ -6,7 +6,7 @@ const guardado = localStorage.getItem('mode');
 
 if (guardado === 'dark') {
   body.classList.add('dark-mode');
-  mode.checked = true; // 🔥 IMPORTANTE
+  mode.checked = true; 
 }
 
 mode.addEventListener('change', () => {
@@ -26,14 +26,14 @@ const cargarDashboard = async () => {
     const gastos = await fetch(`${API}/gastos`).then(r => r.json());
     const productos = await fetch(`${API}/productos`).then(r => r.json());
 
-    // total gastos
+    
     const totalGastos = gastos.reduce((acc, g) => acc + Number(g.monto), 0);
     document.getElementById("gastos").textContent = "$" + totalGastos;
 
-    // total productos
+   
     document.getElementById("productos").textContent = productos.length;
 
-    // valores de ejemplo (luego los conectas)
+    //SOLO EJEMPLOS
     document.getElementById("ventas").textContent = "$1200";
     document.getElementById("usuarios").textContent = "5";
 
@@ -56,3 +56,4 @@ const cargarDashboard = async () => {
   }
 };
 cargarDashboard();
+lucide.createIcons();
