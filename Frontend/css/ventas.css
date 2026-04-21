@@ -239,3 +239,13 @@ body.dark-mode .btn-menu {
   top: 50%;
 }
 
+/*Ventana*/
+.modal{
+   display: none; 
+  position: fixed;
+  inset: 0;
+ background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(5px);
+  justify-content: center;
+  align-items: center;
+}

@@ -45,11 +45,38 @@
       <div class="form-contenedor">
         <input type="text" class="buscador" placeholder="  search">
       </div>
+      <div class="ventas">
+        <h1>Ventas</h1>
+         
+      </div>
 
     </main>
 
   </div>
 
+
+   <!-- Ventana de cofirmación -->
+  <div class="modal">
+    <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Foto</th>
+                <th>Producto</th>
+                <th>Fecha</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+                <th>Pago</th>
+                <th>Empleado</th>
+                <th>Subtotal</th>
+                <th>Desc.</th>
+              </tr>
+            </thead>
+            <tbody id="tablaProductos"></tbody>
+          </table>
+
+
+  </div>
   <script>
     const btn = document.getElementById("btn");
     const menu = document.getElementById("menu");
