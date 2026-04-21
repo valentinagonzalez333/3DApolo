@@ -8,7 +8,6 @@ h2, h3 {
   font-weight: 600;
   letter-spacing: 0.5px;
 }
-
 .layout {
   display: flex;
   min-height: 100vh;
@@ -165,6 +164,12 @@ body.dark-mode .buscador {
   border: none;
   cursor: pointer;
   margin-bottom: 20px;
+  color: var(--texto);
+   opacity: 0.8;
+}
+body.dark-mode .btn-menu {
+  opacity: 1;
+  color: var(--naranja);
 }
 .container {
   position: absolute;
@@ -234,40 +239,3 @@ body.dark-mode .buscador {
   top: 50%;
 }
 
-
-
-.btn-menu{
-  display: none;
-  font-size: 24px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin-bottom: 20px;
-}
-
-@media (max-width: 768px){
-
-  .menu{
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100%;
-    transform: translateX(-100%);
-    z-index: 1000;
-  }
-
-  .menu.activo{
-    transform: translateX(0);
-  }
-
-  .btn-menu{
-    display: block;
-  }
-
-  .buscador{
-    width: 100%;
-  }
-}
-img{
-  border-radius: 20px;
-}

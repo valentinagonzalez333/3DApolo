@@ -165,6 +165,12 @@ body.dark-mode .buscador {
   border: none;
   cursor: pointer;
   margin-bottom: 20px;
+  color: var(--texto);
+   opacity: 0.8;
+}
+body.dark-mode .btn-menu {
+  opacity: 1;
+  color: var(--naranja);
 }
 .container {
   position: absolute;
@@ -288,7 +294,44 @@ tbody tr:hover {
   cursor: pointer;
   margin-bottom: 20px;
 }
+/*responsive tabla*/
+.table-rs{
+  width: 100%;
+  overflow-x: auto; /* 👈 clave */
+  border-radius: 20px;
+}
 
+table {
+  min-width: 900px;
+}
+
+@media (max-width: 768px) {
+
+  .contenido {
+    padding: 15px;
+  }
+
+  .form-contenedor {
+    margin: 30px 0;
+  }
+
+  .buscador {
+    width: 100%;
+  }
+
+  .table {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  .btn-agregar {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
 
 @media (max-width: 768px) {
 
@@ -296,8 +339,10 @@ tbody tr:hover {
     position: fixed;
     left: 0;
     top: 0;
+    width: 220px;
     height: 100%;
     transform: translateX(-100%);
+    transition: 0.3s;
     z-index: 1000;
   }
 
@@ -309,9 +354,6 @@ tbody tr:hover {
     display: block;
   }
 
-  .buscador {
-    width: 100%;
-  }
 }
 
 img {

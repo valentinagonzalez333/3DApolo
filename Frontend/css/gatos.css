@@ -164,6 +164,12 @@ body.dark-mode .buscador {
   border: none;
   cursor: pointer;
   margin-bottom: 20px;
+  color: var(--texto);
+   opacity: 0.8;
+}
+body.dark-mode .btn-menu {
+  opacity: 1;
+  color: var(--naranja);
 }
 .container {
   position: absolute;
@@ -243,6 +249,25 @@ body.dark-mode .buscador {
   margin-bottom: 20px;
 }
 
+/*recursive*/
+.tabla-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  min-width: 600px;
+}
+@media (max-width: 900px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 500px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 768px){
 
   .menu{
@@ -278,9 +303,10 @@ h1 {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  margin-bottom: 30px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .card {

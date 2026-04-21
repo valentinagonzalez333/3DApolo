@@ -165,7 +165,14 @@ body.dark-mode .buscador {
   border: none;
   cursor: pointer;
   margin-bottom: 20px;
+  color: var(--texto);
+   opacity: 0.8;
 }
+body.dark-mode .btn-menu {
+  opacity: 1;
+  color: var(--naranja);
+}
+
 .container {
   position: absolute;
   top: 15px;
