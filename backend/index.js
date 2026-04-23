@@ -41,33 +41,6 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-
-// ── Estáticos ────────────────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, "../Frontend")));
-app.use("/uploads", express.static("uploads"));
-app.use("/img", express.static(path.join(__dirname, "../Frontend/img")));
-
-// ── Servidor ─────────────────────────────────────────────────────────────────
-app.listen(app.get("port"), () => {
-  console.log("✅ Servidor corriendo en el puerto", app.get("port"));
-});
-
-// ── Páginas ──────────────────────────────────────────────────────────────────
-app.get("/", (req, res) =>
-  res.sendFile(path.join(__dirname, "../Frontend/html/Info.html"))
-);
-app.get("/login", (req, res) =>
-  res.sendFile(path.join(__dirname, "../Frontend/html/login.html"))
-);
-app.get("/inicio",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/panel.html")));
-app.get("/productos",     verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/productos.html")));
-app.get("/ventas",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/ventas.html")));
-app.get("/gastos",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html")));
-app.get("/reportes",      verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/reportes.html")));
-app.get("/usuarios",      verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/usuarios.html")));
-app.get("/configuracion", verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/confi.html")));
-
-// ── Login ────────────────────────────────────────────────────────────────────
 app.post("/login", async (req, res) => {
   const { usuario, password } = req.body;
 
@@ -123,6 +96,34 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ ok: false, msg: "Error del servidor" });
   }
 });
+
+
+// ── Estáticos ────────────────────────────────────────────────────────────────
+//app.use(express.static(path.join(__dirname, "../Frontend")));
+app.use("/uploads", express.static("uploads"));
+app.use("/img", express.static(path.join(__dirname, "../Frontend/img")));
+
+// ── Servidor ─────────────────────────────────────────────────────────────────
+app.listen(app.get("port"), () => {
+  console.log("✅ Servidor corriendo en el puerto", app.get("port"));
+});
+
+// ── Páginas ──────────────────────────────────────────────────────────────────
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/Info.html"))
+);
+app.get("/login", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/login.html"))
+);
+app.get("/inicio",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/panel.html")));
+app.get("/productos",     verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/productos.html")));
+app.get("/ventas",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/ventas.html")));
+app.get("/gastos",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html")));
+app.get("/reportes",      verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/reportes.html")));
+app.get("/usuarios",      verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/usuarios.html")));
+app.get("/configuracion", verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/confi.html")));
+
+// ── Login ────────────────────────────────────────────────────────────────────
 
 // ── Logout ───────────────────────────────────────────────────────────────────
 app.post("/logout", (req, res) => {
