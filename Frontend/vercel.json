@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    { "source": "/login", "destination": "/html/login.html" },
+    { "source": "/inicio", "destination": "/html/panel.html" },
+    { "source": "/productos", "destination": "/html/productos.html" },
+    { "source": "/ventas", "destination": "/html/ventas.html" },
+    { "source": "/gastos", "destination": "/html/gastos.html" },
+    { "source": "/reportes", "destination": "/html/reportes.html" },
+    { "source": "/usuarios", "destination": "/html/usuarios.html" },
+    { "source": "/configuracion", "destination": "/html/confi.html" }
+  ]
+}
