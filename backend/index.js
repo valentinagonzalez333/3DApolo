@@ -41,6 +41,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+
 app.post("/login", async (req, res) => {
   const { usuario, password } = req.body;
 

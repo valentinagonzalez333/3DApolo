@@ -8,10 +8,11 @@ let connection;
 export const getConnection = async () => {
   if (!connection) {
     connection = await mysql.createConnection({
-      host: process.env.HOST,
-      user: process.env.USER,
-      password: process.env.PASSWORD,
-      database: process.env.DATABASE
+      host: process.env.MYSQLHOST,
+      user: process.env.MYSQLUSER,
+      password: process.env.MYSQLPASSWORD,
+      database: process.env.MYSQLDATABASE,
+      port: process.env.MYSQLPORT
     });
   }
 
