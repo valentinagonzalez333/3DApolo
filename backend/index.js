@@ -104,10 +104,12 @@ app.post("/login", async (req, res) => {
 
 
 // ── Estáticos ────────────────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, "../Frontend")));
+// ── Estáticos ────────────────────────────────────────────────────────────────
 app.use("/uploads", express.static("uploads"));
 app.use("/img", express.static(path.join(__dirname, "../Frontend/img")));
 
+// ✅ AGREGA ESTA LÍNEA — sirve todo el Frontend (css, js, img, etc.)
+app.use(express.static(path.join(__dirname, "../Frontend")));
 // ── Servidor ─────────────────────────────────────────────────────────────────
 app.listen(app.get("port"), () => {
   console.log("✅ Servidor corriendo en el puerto", app.get("port"));
