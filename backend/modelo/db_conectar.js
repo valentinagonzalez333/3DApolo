@@ -8,12 +8,12 @@ let connection;
 export const getConnection = async () => {
   if (!connection) {
     connection = await mysql.createConnection({
-      host: process.env.MYSQLHOST,
-      user: process.env.MYSQLUSER,
-      password: process.env.MYSQLPASSWORD,
-      database: process.env.MYSQLDATABASE,
-      port: process.env.MYSQLPORT
-    });
+  host: "shinkansen.proxy.rlwy.net",
+  user: "root",
+  password: process.env.MYSQLPASSWORD,
+  database: "railway",
+  port: 20902
+});
   }
 
   return connection;
