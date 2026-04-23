@@ -104,7 +104,7 @@ app.post("/login", async (req, res) => {
 
 
 // ── Estáticos ────────────────────────────────────────────────────────────────
-//app.use(express.static(path.join(__dirname, "../Frontend")));
+app.use(express.static(path.join(__dirname, "../Frontend")));
 app.use("/uploads", express.static("uploads"));
 app.use("/img", express.static(path.join(__dirname, "../Frontend/img")));
 
