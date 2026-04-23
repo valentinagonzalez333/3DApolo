@@ -113,6 +113,7 @@ body.dark-mode .buscador {
   color: white;
 }
 
+
 /* buscador */
 .form-contenedor {
   display: flex;
@@ -136,7 +137,7 @@ body.dark-mode .buscador {
 
 
 .form-contenedor:focus-within::after {
-  width: 40%; 
+  width: 38%; 
 }
 
 .buscador {
@@ -156,6 +157,7 @@ body.dark-mode .buscador {
   border: none;
   border-radius: 0px;
 }
+
 
 /*hamburguesa*/
 .btn-menu {
@@ -354,7 +356,7 @@ button {
   transition: 0.2s;
 }
 
-button:hover,
+
 .btn-nuevo:hover {
   background: #e65f00;
   transform: translateY(-1px);
@@ -423,12 +425,7 @@ textarea {
   box-sizing: border-box;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: var(--naranja);
-  box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.1);
-}
+
 
 .modal-buttons {
   display: flex;

@@ -1,343 +1,240 @@
-import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import cors from 'cors';
-import multer from 'multer';
+import "dotenv/config";
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import cors from "cors";
+import multer from "multer";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 
-// 🔹 MODELOS
+import { verifyToken } from "./middlewares.js";
 import { getConnection } from "./modelo/db_conectar.js";
-// PRODUCTOS
-import {
-  insertarProducto,
-  actualizarProducto,
-  obtenerProductos
-} from './modelo/productos.js';
 
-// GASTOS
-import {
-  obtenergastos,
-  agregarGasto,
-  eliminarGastoDB,
-  actualizarGasto
-} from './modelo/gastos.js';
+import { obtenerProductos, crearProducto, actualizarProducto, eliminarProducto } from "./modelo/productos.js";
+import { obtenergastos, agregarGasto, eliminarGastoDB, actualizarGasto } from "./modelo/gastos.js";
+import { getUsuarios, crearUsuario, getUsuario, actualizarUsuario, cambiarPassword, eliminarUsuario } from "./modelo/usuarios.js";
+import { getProveedores, crearProveedor, actualizarProveedor, eliminarProveedor } from "./modelo/proveedores.js";
+import { getCategorias, crearCategoria, actualizarCategoria, eliminarCategoria } from "./modelo/categorias.js";
+import ventasRouter from "./modelo/ventas.js";
+import reportesRouter from "./modelo/reportes.js";
 
-// USUARIOS
-import {
-  getUsuarios,
-  crearUsuario,
-  getUsuario,
-  actualizarUsuario,
-  cambiarPassword,
-  eliminarUsuario
-} from "./modelo/usuarios.js";
-
-// CONFIG
-import * as confModel from "./modelo/confi.js";
-
-// 🔹 CONFIG APP
 const app = express();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: "uploads/" });
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// 🔹 SERVER
-app.set('port', 4000);
-app.listen(app.get('port'), () => {
-  console.log(" Servidor corriendo en puerto", app.get('port'));
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error("ERROR: JWT_SECRET no está definido en las variables de entorno.");
+  process.exit(1);
+}
+
+app.set("port", process.env.PORT || 4000);
+
+// ── Middlewares ──────────────────────────────────────────────────────────────
+// En producción (Railway), el origen cambia; usar variable de entorno
+const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:4000";
+
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true
+}));
+app.use(express.json());
+app.use(cookieParser());
+
+// ── Estáticos ────────────────────────────────────────────────────────────────
+app.use(express.static(path.join(__dirname, "../Frontend")));
+app.use("/uploads", express.static("uploads"));
+app.use("/img", express.static(path.join(__dirname, "../Frontend/img")));
+
+// ── Servidor ─────────────────────────────────────────────────────────────────
+app.listen(app.get("port"), () => {
+  console.log("✅ Servidor corriendo en el puerto", app.get("port"));
 });
 
-// 🔹 MIDDLEWARE
-app.use(cors()); // más simple
-app.use(express.json());
-
-// 🔹 ESTÁTICOS
-app.use(express.static(path.join(__dirname, "../Frontend")));
-app.use('/uploads', express.static('uploads'));
-app.use('/img', express.static('../Frontend/img'));
-
-
-// ==================================================
-// 🌐 RUTAS VISTAS (HTML)
-// ==================================================
-
+// ── Páginas ──────────────────────────────────────────────────────────────────
 app.get("/", (req, res) =>
   res.sendFile(path.join(__dirname, "../Frontend/html/Info.html"))
 );
-
 app.get("/login", (req, res) =>
   res.sendFile(path.join(__dirname, "../Frontend/html/login.html"))
 );
+app.get("/inicio",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/panel.html")));
+app.get("/productos",     verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/productos.html")));
+app.get("/ventas",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/ventas.html")));
+app.get("/gastos",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html")));
+app.get("/reportes",      verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/reportes.html")));
+app.get("/usuarios",      verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/usuarios.html")));
+app.get("/configuracion", verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/confi.html")));
 
-app.get("/inicio", (req, res) =>
-  res.sendFile(path.join(__dirname, "../Frontend/html/panel.html"))
-);
-
-app.get("/productos", (req, res) =>
-  res.sendFile(path.join(__dirname, "../Frontend/html/productos.html"))
-);
-
-app.get("/ventas", (req, res) =>
-  res.sendFile(path.join(__dirname, "../Frontend/html/ventas.html"))
-);
-
-app.get("/reportes", (req, res) =>
-  res.sendFile(path.join(__dirname, "../Frontend/html/reportes.html"))
-);
-
-app.get("/usuarios", (req, res) =>
-  res.sendFile(path.join(__dirname, "../Frontend/html/usuarios.html"))
-);
-
-app.get("/gastos", (req, res) =>
-  res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html"))
-);
-
-app.get("/configuracion", (req, res) =>
-  res.sendFile(path.join(__dirname, "../Frontend/html/confi.html"))
-);
-
-
-// ==================================================
-// 🔐 LOGIN
-// ==================================================
-
+// ── Login ────────────────────────────────────────────────────────────────────
 app.post("/login", async (req, res) => {
   const { usuario, password } = req.body;
 
-  try {
-    const connection = await getConnection();
+  if (!usuario || !password) {
+    return res.status(400).json({ ok: false, msg: "Campos incompletos" });
+  }
 
-    const [rows] = await connection.query(
-      "SELECT * FROM usuarios WHERE usuario = ?",
+  try {
+    const conn = await getConnection();
+    const [rows] = await conn.query(
+      "SELECT * FROM usuarios WHERE BINARY usuario = ?",
       [usuario]
     );
 
-    if (rows.length > 0) {
-      const user = rows[0];
-
-      // ⚠️ aquí puedes usar bcrypt después
-      if (user.contrasena === password) {
-        return res.json({
-          ok: true,
-          usuario: user.usuario,
-          rol: user.rol
-        });
-      }
+    if (rows.length === 0) {
+      return res.status(401).json({ ok: false, msg: "Credenciales incorrectas" });
     }
 
-    res.json({ ok: false });
+    const user = rows[0];
+    const valid = await bcrypt.compare(password, user.contrasena);
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ ok: false });
-  }
-});
-
-
-// ==================================================
-// ⚙️ CONFIGURACIÓN (usuario logueado)
-// ==================================================
-
-app.get("/api/conf", async (req, res) => {
-  try {
-    const { usuario } = req.query;
-
-    const resultados = await confModel.obtenerUsuario(usuario);
-
-    if (resultados.length > 0) {
-      res.json({
-        ok: true,
-        usuario: resultados[0].usuario,
-        rol: resultados[0].rol
-      });
-    } else {
-      res.json({ ok: false });
+    if (!valid) {
+      return res.status(401).json({ ok: false, msg: "Credenciales incorrectas" });
     }
 
+    if (user.estado == 0) {
+      return res.status(403).json({ ok: false, msg: "Usuario inactivo" });
+    }
+
+    const token = jwt.sign(
+      { id: user.id_usuario, rol: user.rol },
+      JWT_SECRET,
+      { expiresIn: "2h" }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      path: "/",
+      maxAge: 1000 * 60 * 60 * 2
+    });
+
+    res.json({
+      ok: true,
+      id_usuario: user.id_usuario,
+      usuario: user.usuario,
+      rol: user.rol
+    });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ ok: false });
+    console.error("Error en login:", error);
+    res.status(500).json({ ok: false, msg: "Error del servidor" });
   }
 });
 
+// ── Logout ───────────────────────────────────────────────────────────────────
+app.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    path: "/"
+  });
+  res.json({ ok: true });
+});
 
-// ==================================================
-// 👤 USUARIOS (CRUD)
-// ==================================================
+// ── API: me ──────────────────────────────────────────────────────────────────
+app.get("/api/me", verifyToken, (req, res) => {
+  res.json({ ok: true, user: req.user });
+});
 
-app.get("/api/usuarios", async (req, res) => {
+// ── API: Usuarios ────────────────────────────────────────────────────────────
+app.get("/api/usuarios", verifyToken, async (req, res) => {
   try {
-    const data = await getUsuarios();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ ok: false });
+    res.json(await getUsuarios());
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, msg: "Error al obtener usuarios" });
   }
 });
 
-app.get("/api/usuarios/:id", async (req, res) => {
+app.get("/api/usuarios/:id", verifyToken, async (req, res) => {
   try {
-    const user = await getUsuario(req.params.id);
-    res.json(user);
-  } catch {
-    res.status(500).json({ ok: false });
+    const usuario = await getUsuario(req.params.id);
+    if (!usuario) return res.status(404).json({ ok: false, msg: "Usuario no encontrado" });
+    res.json(usuario);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, msg: "Error al obtener usuario" });
   }
 });
 
-app.post("/api/usuarios", async (req, res) => {
+app.post("/api/usuarios", verifyToken, async (req, res) => {
   try {
     await crearUsuario(req.body);
     res.json({ ok: true });
-  } catch {
-    res.status(500).json({ ok: false });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, msg: "Error al crear usuario" });
   }
 });
 
-app.put("/api/usuarios/:id", async (req, res) => {
+app.put("/api/usuarios/:id", verifyToken, async (req, res) => {
   try {
     await actualizarUsuario(req.params.id, req.body);
     res.json({ ok: true });
-  } catch {
-    res.status(500).json({ ok: false });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, msg: "Error al actualizar usuario" });
   }
 });
 
-app.post("/api/usuarios/pass/:id", async (req, res) => {
+// ── CAMBIAR CONTRASEÑA (admin cambia la de otro usuario) ─────────────────────
+// Ruta: PUT /api/usuarios/pass/:id
+// IMPORTANTE: esta ruta debe ir ANTES de /api/usuarios/:id para que Express
+// no interprete "pass" como un :id
+app.put("/api/usuarios/pass/:id", verifyToken, async (req, res) => {
+  const { actual, nueva } = req.body;
+  if (!actual || !nueva) {
+    return res.status(400).json({ ok: false, msg: "Datos incompletos" });
+  }
   try {
-    const ok = await cambiarPassword(
-      req.params.id,
-      req.body.actual,
-      req.body.nueva
-    );
-
-    res.json({ ok });
-  } catch {
-    res.status(500).json({ ok: false });
+    const result = await cambiarPassword(req.params.id, actual, nueva);
+    if (!result.ok) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, msg: "Error al cambiar contraseña" });
   }
 });
 
-app.delete("/api/usuarios/:id", async (req, res) => {
+app.delete("/api/usuarios/:id", verifyToken, async (req, res) => {
   try {
-    await eliminarUsuario(req.params.id);
+    const result = await eliminarUsuario(req.params.id);
+    if (!result.ok) return res.status(400).json({ ok: false, msg: result.mensaje });
     res.json({ ok: true });
-  } catch {
-    res.status(500).json({ ok: false });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, msg: "Error al eliminar usuario" });
   }
 });
 
+// ── API: Proveedores ─────────────────────────────────────────────────────────
+app.get("/api/proveedores",        verifyToken, async (req, res) => res.json(await getProveedores()));
+app.post("/api/proveedores",       verifyToken, async (req, res) => { await crearProveedor(req.body); res.json({ ok: true }); });
+app.put("/api/proveedores/:id",    verifyToken, async (req, res) => { await actualizarProveedor(req.params.id, req.body); res.json({ ok: true }); });
+app.delete("/api/proveedores/:id", verifyToken, async (req, res) => { await eliminarProveedor(req.params.id); res.json({ ok: true }); });
 
-// ==================================================
-// 📦 PRODUCTOS
-// ==================================================
+// ── API: Categorías ──────────────────────────────────────────────────────────
+app.get("/api/categorias",        verifyToken, async (req, res) => res.json(await getCategorias()));
+app.post("/api/categorias",       verifyToken, async (req, res) => { await crearCategoria(req.body); res.json({ ok: true }); });
+app.put("/api/categorias/:id",    verifyToken, async (req, res) => { await actualizarCategoria(req.params.id, req.body); res.json({ ok: true }); });
+app.delete("/api/categorias/:id", verifyToken, async (req, res) => { await eliminarCategoria(req.params.id); res.json({ ok: true }); });
 
-app.get('/api/productos', async (req, res) => {
-  try {
-    const productos = await obtenerProductos();
-    res.json(productos);
-  } catch {
-    res.status(500).json({ error: "Error" });
-  }
-});
+// ── API: Productos ───────────────────────────────────────────────────────────
+app.get("/api/productos",        verifyToken, obtenerProductos);
+app.post("/api/productos",       verifyToken, upload.single("imagen"), crearProducto);
+app.put("/api/productos/:id",    verifyToken, upload.single("imagen"), actualizarProducto);
+app.delete("/api/productos/:id", verifyToken, eliminarProducto);
 
-app.post('/api/productos', upload.single('imagen'), async (req, res) => {
-  const img = req.file ? `/uploads/${req.file.filename}` : null;
+// ── API: Gastos ──────────────────────────────────────────────────────────────
+app.get("/api/gastos",        verifyToken, async (req, res) => res.json(await obtenergastos()));
+app.post("/api/gastos",       verifyToken, async (req, res) => { await agregarGasto(req.body); res.json({ ok: true }); });
+app.put("/api/gastos/:id",    verifyToken, async (req, res) => { await actualizarGasto(req.params.id, req.body); res.json({ ok: true }); });
+app.delete("/api/gastos/:id", verifyToken, async (req, res) => { await eliminarGastoDB(req.params.id); res.json({ ok: true }); });
 
-  const data = [
-    req.body.nombre,
-    req.body.categoria_id,
-    req.body.proveedor_id,
-    req.body.precio_compra,
-    req.body.precio_venta,
-    req.body.stock,
-    req.body.stock_minimo,
-    req.body.iva,
-    req.body.descuenti,
-    req.body.descripcion,
-    req.body.estado,
-    img
-  ];
-
-  await insertarProducto(data);
-  res.json({ ok: true });
-});
-
-app.put('/api/productos/:id', upload.single('imagen'), async (req, res) => {
-  const img = req.file ? `/uploads/${req.file.filename}` : req.body.url;
-
-  const data = [
-    req.body.nombre,
-    req.body.categoria_id,
-    req.body.proveedor_id,
-    req.body.precio_compra,
-    req.body.precio_venta,
-    req.body.stock,
-    req.body.stock_minimo,
-    req.body.iva,
-    req.body.descuenti,
-    req.body.descripcion,
-    req.body.estado,
-    img
-  ];
-
-  await actualizarProducto(req.params.id, data);
-  res.json({ ok: true });
-});
-
-app.delete('/api/productos/:id', async (req, res) => {
-  try {
-    const conexion = await getConnection();
-
-    const [result] = await conexion.execute(
-      'DELETE FROM productos WHERE id_producto = ?',
-      [req.params.id]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "No encontrado" });
-    }
-
-    res.json({ ok: true });
-
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-
-// ==================================================
-// 💸 GASTOS
-// ==================================================
-
-app.get('/api/gastos', async (req, res) => {
-  try {
-    const gastos = await obtenergastos();
-    res.json(gastos);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/api/gastos', async (req, res) => {
-  try {
-    await agregarGasto(req.body);
-    res.json({ ok: true });
-  } catch {
-    res.status(500).json({ ok: false });
-  }
-});
-
-app.put('/api/gastos/:id', async (req, res) => {
-  try {
-    await actualizarGasto(req.params.id, req.body);
-    res.json({ ok: true });
-  } catch {
-    res.status(500).json({ ok: false });
-  }
-});
-
-app.delete('/api/gastos/:id', async (req, res) => {
-  try {
-    await eliminarGastoDB(req.params.id);
-    res.json({ ok: true });
-  } catch {
-    res.status(500).json({ ok: false });
-  }
-});
+// ── API: Ventas y Reportes ───────────────────────────────────────────────────
+app.use("/api/ventas",   verifyToken, ventasRouter);
+app.use("/api/reportes", verifyToken, reportesRouter);

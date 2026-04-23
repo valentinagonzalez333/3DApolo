@@ -14,14 +14,20 @@
         <div class="form-contenedor">
             <h1>Iniciar Sesión</h1>
             <p>Por favor, introduce tus credenciales para iniciar sesión.</p>
-            <form id="login-forma">
+            <form id="login-forma" autocomplete="off">
                 <label for="usuario" class="sr-only">User</label>
-                <input type="text" name="usuario" id="usuario" placeholder="Ingrese su usuario">
+                <input type="text" name="usuario" id="usuario" placeholder="Ingrese su usuario"
+                       autocomplete="new-password"
+                       readonly onfocus="this.removeAttribute('readonly')">
 
                 <label for="password" class="sr-only">Contraseña</label>
-                <input type="password" name="password" id="password" placeholder="Ingrese su contraseña">
+                <!-- FIX: name era "passAword" (A mayúscula) → corregido a "password" -->
+                <input type="password" name="password" id="password" placeholder="Ingrese su contraseña"
+                       autocomplete="new-password"
+                       readonly onfocus="this.removeAttribute('readonly')">
+
                 <!-- From Uiverse.io by MuhammadHasann -->
-                <button type = "submit" >
+                <button type="submit">
                     iniciar sesión
                     <div class="star-1">
                         <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1"

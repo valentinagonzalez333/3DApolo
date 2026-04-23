@@ -1,145 +1,232 @@
+const API = "/api";
 
+async function verificarSesion() {
+  try {
+    const res = await fetch(`${API}/me`, { credentials: "include" });
+    if (!res.ok) { window.location.href = "/login"; return false; }
+    return true;
+  } catch {
+    window.location.href = "/login";
+    return false;
+  }
+}
 
-const cargarProductos = async () => {
-  const res = await fetch('http://localhost:4000/api/productos');
-  const data = await res.json();
-  const categoria = document.getElementById("categoria");
-const proveedor = document.getElementById("proveedor");
-const productoId = document.getElementById("productoId");
+// ── Variables globales ────────────────────────────────────────────────────────
+const tabla        = document.getElementById("tablaProductos");
+const modal        = document.getElementById("modalProducto");
+const categoria    = document.getElementById("categoria");
+const proveedor    = document.getElementById("proveedor");
+const productoId   = document.getElementById("productoId");
 const formProducto = document.getElementById("formProducto");
-  const tabla = document.getElementById('tablaProductos');
+
+let editando           = false;
+let todosLosProductos  = [];
+
+// ── Modo oscuro ───────────────────────────────────────────────────────────────
+const body = document.body;
+const mode = document.getElementById("btn_modo");
+
+if (localStorage.getItem("mode") === "dark") {
+  body.classList.add("dark-mode");
+  if (mode) mode.checked = true;
+}
+
+mode?.addEventListener("change", () => {
+  const isDark = body.classList.toggle("dark-mode");
+  localStorage.setItem("mode", isDark ? "dark" : "light");
+});
+
+// ── Cargar productos ──────────────────────────────────────────────────────────
+const cargarProductos = async () => {
+  try {
+    const res = await fetch(`${API}/productos`, { credentials: "include" });
+    todosLosProductos = await res.json();
+    renderTabla(todosLosProductos);
+  } catch (err) {
+    console.error("Error cargando productos:", err);
+  }
+};
+
+// ── Render tabla ──────────────────────────────────────────────────────────────
+const renderTabla = (data) => {
   tabla.innerHTML = "";
 
   data.forEach(p => {
-    tabla.innerHTML += `
-      <tr>
-        <td>${p.id_producto}</td>
-        <td><img src="http://localhost:4000${p.url}" width="40"></td>
-        <td>${p.nombre}</td>
-        <td>${p.categoria || "N/A"}</td>
-        <td>${p.proveedor || "N/A"}</td>
-        <td>$${p.precio_compra}</td>
-        <td>$${p.precio_venta}</td>
-        <td>${p.stock}</td>
-        <td>${p.stock_minimo}</td>
-        <td>${p.iva ?? 0}%</td>
-        <td>${p.descuenti ?? 0}%</td>
-        <td>${p.estado == 1 ? 'Activo' : '❌'}</td>
-        <td>${p.descripcion || ""}</td>
-       <td>
-  <button onclick='editar(${JSON.stringify(p)})'>✏️</button>
-  <button onclick='eliminar(${p.id_producto})'>🗑️</button>
-</td>
-      </tr>`;
+    // URL relativa — funciona en local y en producción sin cambios
+    const imgSrc = p.url || "/img/default.png";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${p.id_producto}</td>
+      <td><img src="${imgSrc}" width="40" style="border-radius:6px;object-fit:cover;height:40px;"></td>
+      <td>${p.nombre}</td>
+      <td>${p.categoria  || "N/A"}</td>
+      <td>${p.proveedor  || "N/A"}</td>
+      <td>$${p.precio_compra}</td>
+      <td>$${p.precio_venta}</td>
+      <td>${p.stock}</td>
+      <td>${p.stock_minimo}</td>
+      <td>${p.iva      ?? 0}%</td>
+      <td>${p.descuenti ?? 0}%</td>
+      <td>${p.estado == 1 ? "Activo" : "❌"}</td>
+      <td>${p.descripcion || ""}</td>
+      <td>
+        <button onclick="editarProducto(${p.id_producto})">✏️</button>
+        <button onclick="eliminarProducto(${p.id_producto})">🗑️</button>
+      </td>
+    `;
+    tabla.appendChild(tr);
   });
 };
 
-const modal = document.getElementById("modalProducto");
-window.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("cerrarModalProducto").onclick = () => {
-    modal.style.display = "none";
-  };
+// ── Buscador ──────────────────────────────────────────────────────────────────
+document.getElementById("buscador")?.addEventListener("input", (e) => {
+  const txt      = e.target.value.toLowerCase();
+  const filtrados = todosLosProductos.filter(p =>
+    p.nombre.toLowerCase().includes(txt)
+  );
+  renderTabla(filtrados);
 });
+
+// ── Cargar selects (categorías y proveedores) ─────────────────────────────────
+const cargarSelects = async () => {
+  try {
+    const [cat, prov] = await Promise.all([
+      fetch(`${API}/categorias`,  { credentials: "include" }).then(r => r.json()),
+      fetch(`${API}/proveedores`, { credentials: "include" }).then(r => r.json())
+    ]);
+
+    categoria.innerHTML = cat
+      .map(c => `<option value="${c.id_categoria}">${c.nombre}</option>`)
+      .join("");
+
+    proveedor.innerHTML = prov
+      .map(p => `<option value="${p.id_proveedor}">${p.nombre}</option>`)
+      .join("");
+
+  } catch (err) {
+    console.error("Error cargando selects:", err);
+  }
+};
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
 const abrirModal = () => {
   modal.style.display = "flex";
   formProducto.reset();
   productoId.value = "";
   editando = false;
+  document.getElementById("tituloProducto").textContent = "Nuevo Producto";
 };
 
 const cerrarModal = () => {
   modal.style.display = "none";
-
-  // limpia
   formProducto.reset();
   productoId.value = "";
   editando = false;
 };
-const cargarSelects = async () => {
-  const cat = await fetch('http://localhost:4000/api/categorias').then(r=>r.json());
-  const prov = await fetch('http://localhost:4000/api/proveedores').then(r=>r.json());
 
-  categoria.innerHTML = cat.map(c =>
-    `<option value="${c.id_categoria}">${c.nombre}</option>`).join("");
+document.getElementById("cerrarModalProducto").onclick = cerrarModal;
 
-  proveedor.innerHTML = prov.map(p =>
-    `<option value="${p.id_proveedor}">${p.nombre}</option>`).join("");
-};
-let editando = false;
-
+// ── Guardar ───────────────────────────────────────────────────────────────────
 formProducto.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const datos = new FormData();
+  const fd = new FormData();
+  fd.append("nombre",       document.getElementById("nombre").value);
+  fd.append("categoria_id", document.getElementById("categoria").value);
+  fd.append("proveedor_id", document.getElementById("proveedor").value);
+  fd.append("precio_compra", document.getElementById("compra").value);
+  fd.append("precio_venta",  document.getElementById("venta").value);
+  fd.append("stock",         document.getElementById("stock").value);
+  fd.append("stock_minimo",  document.getElementById("stockMin").value);
+  fd.append("iva",           document.getElementById("iva").value || 0);
+  fd.append("descuenti",     document.getElementById("descuenti").value || 0);
+  fd.append("descripcion",   document.getElementById("descripcion").value);
+  fd.append("estado",        document.getElementById("estado").value);
 
-  datos.append("nombre", nombre.value);
-  datos.append("categoria_id", categoria.value);
-  datos.append("proveedor_id", proveedor.value);
-  datos.append("precio_compra", compra.value);
-  datos.append("precio_venta", venta.value);
-  datos.append("stock", stock.value);
-  datos.append("stock_minimo", stockMin.value);
-  datos.append("iva", iva.value);
-  datos.append("descuenti", descuenti.value);
-  datos.append("descripcion", descripcion.value);
-  datos.append("estado", estado.value);
-  datos.append("imagen", imagen.files[0]);
+  const imgFile = document.getElementById("imagen").files[0];
+  if (imgFile) fd.append("imagen", imgFile);
 
-  let url = "http://localhost:4000/api/productos";
-  let metodo = "POST";
+  const url    = editando ? `${API}/productos/${productoId.value}` : `${API}/productos`;
+  const metodo = editando ? "PUT" : "POST";
 
-  if (editando) {
-    url += "/" + productoId.value;
-    metodo = "PUT";
+  try {
+    const res = await fetch(url, {
+      method: metodo,
+      credentials: "include",
+      body: fd
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err);
+    }
+
+    cerrarModal();
+    cargarProductos();
+
+  } catch (err) {
+    console.error(err);
+    alert("Error al guardar producto: " + err.message);
   }
-
-  await fetch(url, {
-    method: metodo,
-    body: datos
-  });
-
-  cerrarModal();
-  cargarProductos();
 });
-const editar = (p) => {
-  abrirModal();
-  editando = true;
 
-  productoId.value = p.id_producto;
-  nombre.value = p.nombre;
-  compra.value = p.precio_compra;
-  venta.value = p.precio_venta;
-  stock.value = p.stock;
-  stockMin.value = p.stock_minimo;
-  iva.value = p.iva;
-  descuenti.value = p.descuenti;
-  descripcion.value = p.descripcion;
-  estado.value = p.estado;
+// ── Editar ────────────────────────────────────────────────────────────────────
+window.editarProducto = async (id) => {
+  try {
+    // Reusar los datos ya cargados en memoria — evita un fetch extra
+    const p = todosLosProductos.find(x => x.id_producto === id);
+    if (!p) return alert("Producto no encontrado");
+
+    await cargarSelects();
+    abrirModal();
+
+    editando = true;
+    document.getElementById("tituloProducto").textContent = "Editar Producto";
+    productoId.value = p.id_producto;
+
+    document.getElementById("nombre").value      = p.nombre        || "";
+    document.getElementById("categoria").value   = p.categoria_id  || "";
+    document.getElementById("proveedor").value   = p.proveedor_id  || "";
+    document.getElementById("compra").value      = p.precio_compra || "";
+    document.getElementById("venta").value       = p.precio_venta  || "";
+    document.getElementById("stock").value       = p.stock         || "";
+    document.getElementById("stockMin").value    = p.stock_minimo  || "";
+    document.getElementById("iva").value         = p.iva           ?? 0;
+    document.getElementById("descuenti").value   = p.descuenti     ?? 0;
+    document.getElementById("descripcion").value = p.descripcion   || "";
+    document.getElementById("estado").value      = p.estado;
+
+  } catch (err) {
+    console.error(err);
+    alert("Error cargando producto para editar");
+  }
 };
-const eliminar = async (id) => {
-  if (!confirm("¿Eliminar producto?")) return;
 
-  await fetch(`http://localhost:4000/api/productos/${id}`, {
-    method: "DELETE"
-  });
+// ── Eliminar ──────────────────────────────────────────────────────────────────
+window.eliminarProducto = async (id) => {
+  if (!confirm("¿Eliminar este producto?")) return;
+
+  try {
+    const res = await fetch(`${API}/productos/${id}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+
+    if (!res.ok) throw new Error(await res.text());
+    cargarProductos();
+
+  } catch (err) {
+    console.error(err);
+    alert("Error eliminando producto: " + err.message);
+  }
+};
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", async () => {
+  const ok = await verificarSesion();
+  if (!ok) return;
 
   cargarProductos();
-};
-
-//estilo modo oscuro
-const body = document.body;
-const mode = document.getElementById('btn_modo');
-
-// cargar modo guardado
-const guardado = localStorage.getItem('mode');
-
-if (guardado === 'dark') {
-  body.classList.add('dark-mode');
-}
-
-mode.addEventListener('click', () => {
-  const isDark = body.classList.toggle('dark-mode');
-  localStorage.setItem('mode', isDark ? 'dark' : 'light');
+  cargarSelects();
 });
-cargarProductos();
-cargarSelects();

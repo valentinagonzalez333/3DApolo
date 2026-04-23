@@ -1,29 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel - Apolo3D</title>
-    <link rel="stylesheet" href="../css/gatos.css">
-    <script src="../js/gastos.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gastos - Apolo3D</title>
+  <link rel="stylesheet" href="../css/gatos.css">
+  <script src="../js/gastos.js" defer></script>
 </head>
 
-
 <body>
+  <div class="layout">
 
-    <div class="layout">
-
-
-       <aside class="menu" id="menu">
+    <aside class="menu" id="menu">
       <nav>
         <ul>
           <li><a href="/inicio">Dashboard</a></li>
           <li><a href="/productos">Productos</a></li>
           <li><a href="/ventas">Ventas</a></li>
-          <li><a href="/reportes">Reportes</a></li>
-          <li><a href="/usuarios">Usuarios</a></li>
-          <li><a href="/gastos">Gastos</a></li>
+          <li><a href="/reportes">Informe</a></li>
+          <li><a href="/gastos" >Gastos</a></li>
           <li><a href="/configuracion">Configuración</a></li>
         </ul>
       </nav>
@@ -31,10 +26,8 @@
 
     <main class="contenido">
 
-
       <button class="btn-menu" id="btn">☰</button>
 
-      <!-- From Uiverse.io by Pradeepsaranbishnoi -->
       <div class="container">
         <div class="toggle">
           <input type="checkbox" id="btn_modo">
@@ -44,94 +37,147 @@
       </div>
 
       <div class="form-contenedor">
-        <input type="text" class="buscador" placeholder="  search">
+        <input type="text" class="buscador" id="buscarGastos" placeholder="Buscar...">
       </div>
-            <h1>Gastos Apolo3D</h1>
 
-            <div class="cards">
-                <div class="card">
-                    <p>Total Gastos</p>
-                    <h2 id="total"></h2>
-                </div>
+      <h1>Gastos Apolo3D</h1>
 
-                <div class="card">
-                    <p>Gastos del Mes</p>
-                    <h2 id="mensual"></h2>
-                </div>
+      <!-- CARDS  -->
+      <div class="cards">
+        <div class="card">
+          <p>Total Gastos</p>
+          <h2 id="total">$0</h2>
+        </div>
+        <div class="card">
+          <p>Gastos del Mes</p>
+          <h2 id="mensual">$0</h2>
+        </div>
+        <div class="card">
+          <p>Mayor Gasto</p>
+          <h2 id="mayor">$0</h2>
+        </div>
+        <div class="card">
+          <p>Categorías</p>
+          <h2 id="categorias">0</h2>
+        </div>
+      </div>
 
-                <div class="card">
-                    <p>Mayor Gasto</p>
-                    <h2 id="mayor"></h2>
-                </div>
+      <!-- TABLA -->
+      <div class="top">
+        <div class="tabla-contenedor">
+          <div class="tabla-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Descripción</th>
+                  <th>Tipo</th>
+                  <th>Frecuencia</th>
+                  <th>Próximo cobro</th>
+                  <th>Monto</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-gastos"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
-                <div class="card">
-                    <p>Categorías</p>
-                    <h2 id="categorias"></h2>
-                </div>
+      <div class="acciones-principales">
+        <button id="btnAbrirAgregar" class="btn-nuevo">+ Nuevo Gasto</button>
+      </div>
+
+      <!-- MODAL GASTO -->
+      <div id="gasto" class="modal">
+        <div class="contenido-formulario">
+          <h2 id="modalTitulo">Agregar Gasto</h2>
+          <form id="formGasto">
+            <input type="hidden" id="gastoId">
+
+            <label>Descripción:</label>
+            <input type="text" id="desc" required>
+
+            <label>Monto:</label>
+            <input type="number" id="monto" step="0.01" required>
+
+            <!-- TIPO: Compra o Gasto  -->
+            <label>Tipo:</label>
+            <select id="tipo">
+              <option value="Compra">🛒 Compra (descuenta de ganancia)</option>
+              <option value="Gasto">💸 Gasto (descuenta de ganancia)</option>
+            </select>
+
+            <!-- FRECUENCIA -->
+            <label>Frecuencia:</label>
+            <select id="frecuencia">
+              <option value="unica">Una vez</option>
+              <option value="mensual">Mensual (día fijo)</option>
+              <option value="anual">Anual (fecha fija)</option>
+              <option value="semanal">Semanal</option>
+              <option value="diaria">Diaria</option>
+            </select>
+
+            <!-- Campos (frecuencia) -->
+            <div id="campoUnica">
+              <label>Fecha de pago:</label>
+              <input type="date" id="fecha_pago">
             </div>
 
-            <div class="top">
-            <div class="tabla-contenedor">
-                <div class="tabla-scroll">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Descripción</th>
-                            <th>Tipo</th>
-                            <th>Fecha</th>
-                            <th>Monto</th>
-                             <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-gastos">
+            <div id="campoMensual" style="display:none;">
+              <label>Día del mes (ej: 15):</label>
+              <input type="number" id="dia_del_mes" min="1" max="31" placeholder="15">
+              <label>Fecha de inicio:</label>
+              <input type="date" id="fecha_inicio_mensual">
+            </div>
 
-                    </tbody>
-                    </table>
+            <div id="campoAnual" style="display:none;">
+              <label>Día:</label>
+              <input type="number" id="dia_anual" min="1" max="31" placeholder="15">
+              <label>Mes:</label>
+              <select id="mes_anual">
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+              </select>
+              <label>Fecha de inicio:</label>
+              <input type="date" id="fecha_inicio_anual">
+            </div>
+
+            <div id="campoSemanal" style="display:none;">
+              <label>Fecha de inicio (define el día de semana):</label>
+              <input type="date" id="fecha_inicio_semanal">
+            </div>
+
+            <div id="campoDiaria" style="display:none;">
+              <label>Fecha de inicio:</label>
+              <input type="date" id="fecha_inicio_diaria">
+            </div>
+
+            <div class="modal-buttons">
+              <button type="submit" class="btn-guardar">Guardar</button>
+              <button type="button" id="btnCerrar" class="btn-cancelar">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </main>
   </div>
-</div>
-</div>
 
-            <div class="acciones-principales">
-                <button id="btnAbrirAgregar" class="btn-nuevo"> Nuevo Gasto</button>
-            </div>
-
-            <div id="gasto" class="modal">
-                <div class="contenido-formulario">
-                    <h2 id="modalTitulo">Agregar Gasto</h2>
-                    <form id="formGasto">
-                        <input type="hidden" id="gastoId"> <label>Descripción:</label>
-                        <input type="text" id="desc" required>
-
-                        <label>Monto:</label>
-                        <input type="number" id="monto" step="0.01" required>
-                        <label>Fecha de Pago:</label>
-                        <input type="date" id="fecha_pago" required>
-                        <label>Tipo:</label>
-                        <select id="tipo">
-                            <option value="Fijo">Fijo</option>
-                            <option value="Variable">Variable</option>
-                        </select>
-
-                        <div class="modal-buttons">
-                            <button type="submit" class="btn-guardar">Guardar</button>
-                            <button type="button" id="btnCerrar" class="btn-cancelar">Cancelar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        const btn = document.getElementById("btn");
-        const menu = document.getElementById("menu");
-
-        btn.addEventListener("click", () => {
-            menu.classList.toggle("activo");
-        });
-    </script>
-
+  <script>
+    document.getElementById("btn").addEventListener("click", () => {
+      document.getElementById("menu").classList.toggle("activo");
+    });
+  </script>
 </body>
-
 </html>

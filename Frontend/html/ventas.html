@@ -1,90 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administrador</title>
+  <title>Ventas - Apolo3D</title>
+
   <link rel="stylesheet" href="../css/ventas.css">
   <script src="../js/ventas.js" defer></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
-  <div class="layout">
 
+<div class="layout">
 
-    <aside class="menu" id="menu">
-      <nav>
-        <ul>
-          <li><a href="/inicio">Dashboard</a></li>
-          <li><a href="/productos">Productos</a></li>
-          <li><a href="/ventas">Ventas</a></li>
-          <li><a href="/reportes">Reportes</a></li>
-          <li><a href="/usuarios">Usuarios</a></li>
-          <li><a href="/gastos">Gastos</a></li>
-          <li><a href="/configuracion">Configuración</a></li>
-        </ul>
-      </nav>
-    </aside>
+  
+  <aside class="menu" id="menu">
+    <nav>
+      <ul>
+        <li><a href="/inicio">Dashboard</a></li>
+        <li><a href="/productos">Productos</a></li>
+        <li><a href="/ventas" >Ventas</a></li>
+        <li><a href="/reportes">Informe</a></li>
+        <li><a href="/gastos">Gastos</a></li>
+        <li><a href="/configuracion">Configuración</a></li>
+      </ul>
+    </nav>
 
-    <main class="contenido">
+    
+    <div class="container">
+      <div class="toggle">
+        <input type="checkbox" id="btn_modo">
+        <span class="button"></span>
+        <span class="label">☼</span>
+      </div>
+    </div>
+  </aside>
 
+  <main class="contenido">
 
-      <button class="btn-menu" id="btn">☰</button>
+    <button class="btn-menu" id="btn">☰</button>
 
-      <!-- From Uiverse.io by Pradeepsaranbishnoi -->
-      <div class="container">
-        <div class="toggle">
-          <input type="checkbox" id="btn_modo">
-          <span class="button"></span>
-          <span class="label">☼</span>
+    <h2 class="titulo-ventas">Ventas</h2>
+
+    <div class="form-contenedor">
+      <input type="text" id="buscador" class="buscador" placeholder="Buscar producto...">
+    </div>
+
+   
+    <div class="pos-wrapper">
+
+      <!-- Panel productos -->
+      <div class="panel-productos">
+        <div class="productos-scroll">
+          <div class="grid-productos" id="listaProductos"></div>
         </div>
       </div>
 
-      <div class="form-contenedor">
-        <input type="text" class="buscador" placeholder="  search">
+      <!-- Panel carrito -->
+      <div class="panel-carrito">
+
+        <div class="carrito-header">
+          <span class="carrito-title">Orden actual</span>
+          <span class="badge-items" id="badge-items">0 items</span>
+        </div>
+
+        <div class="carrito-body" id="carrito-body">
+          <div class="carrito-vacio" id="carrito-vacio">
+            <span class="carrito-vacio-icon">🛒</span>
+            <span>Agrega productos al carrito</span>
+          </div>
+        </div>
+
+        <div class="carrito-footer">
+          <div class="resumen-linea">
+            <span class="resumen-label">Subtotal</span>
+            <span class="resumen-valor" id="subtotal">$0</span>
+          </div>
+          <div class="resumen-linea">
+            <span class="resumen-label">Impuestos</span>
+            <span class="resumen-valor">$0</span>
+          </div>
+          <div class="divider"></div>
+          <div class="resumen-linea resumen-total">
+            <span class="resumen-label">Total</span>
+            <span class="resumen-valor">$<span id="total">0</span></span>
+          </div>
+          <div class="metodo-row">
+            <select id="metodo_pago" class="select-metodo">
+              <option>Efectivo</option>
+              <option>Tarjeta</option>
+              <option>Transferencia</option>
+            </select>
+            <button class="btn-pagar" onclick="guardarVenta()">
+              ✓ Pagar ahora
+            </button>
+          </div>
+        </div>
+
       </div>
-      <div class="ventas">
-        <h1>Ventas</h1>
-         
-      </div>
+    </div>
 
-    </main>
+  </main>
+</div>
 
-  </div>
+<script>
+  const btn  = document.getElementById("btn");
+  const menu = document.getElementById("menu");
 
+  btn.addEventListener("click", () => {
+    menu.classList.toggle("activo");
+  });
 
-   <!-- Ventana de cofirmación -->
-  <div class="modal">
-    <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Foto</th>
-                <th>Producto</th>
-                <th>Fecha</th>
-                <th>Cantidad</th>
-                <th>Total</th>
-                <th>Pago</th>
-                <th>Empleado</th>
-                <th>Subtotal</th>
-                <th>Desc.</th>
-              </tr>
-            </thead>
-            <tbody id="tablaProductos"></tbody>
-          </table>
+  document.getElementById("btn_modo").addEventListener("change", function () {
+    document.body.classList.toggle("dark-mode", this.checked);
+  });
+</script>
 
-
-  </div>
-  <script>
-    const btn = document.getElementById("btn");
-    const menu = document.getElementById("menu");
-
-    btn.addEventListener("click", () => {
-      menu.classList.toggle("activo");
-    });
-  </script>
 </body>
-
 </html>

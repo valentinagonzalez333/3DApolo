@@ -1,109 +1,235 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apolo3D</title>
+  <title>Apolo3D — Configuración</title>
   <link rel="stylesheet" href="../css/confi.css">
   <script src="../js/conf.js" defer></script>
 </head>
 
 <body>
-  <div class="layout">
+<div class="layout">
 
-    <!-- 🔹 MENU -->
-    <aside class="menu" id="menu">
-      <nav>
-        <ul>
-          <li><a href="/inicio">Dashboard</a></li>
-          <li><a href="/productos">Productos</a></li>
-          <li><a href="/ventas">Ventas</a></li>
-          <li><a href="/reportes">Reportes</a></li>
-          <li><a href="/usuarios">Usuarios</a></li>
-          <li><a href="/gastos">Gastos</a></li>
-          <li><a href="/configuracion">Configuración</a></li>
-        </ul>
-      </nav>
-    </aside>
+  <aside class="menu" id="menu">
+    <nav>
+      <ul>
+        <li><a href="/inicio">Dashboard</a></li>
+        <li><a href="/productos">Productos</a></li>
+        <li><a href="/ventas">Ventas</a></li>
+        <li><a href="/reportes">Informe</a></li>
+        <li><a href="/gastos">Gastos</a></li>
+        <li><a href="/configuracion" >Configuración</a></li>
+      </ul>
+    </nav>
+  </aside>
 
-    <!-- 🔹 CONTENIDO -->
-    <main class="contenido">
+  <main class="contenido">
 
-      <!-- 🔝 NO SE TOCA -->
-      <button class="btn-menu" id="btn">☰</button>
+    <button class="btn-menu" id="btn">☰</button>
 
-      <div class="container">
-        <div class="toggle">
-          <input type="checkbox" id="btn_modo">
-          <span class="button"></span>
-          <span class="label">☼</span>
-        </div>
+    <div class="container">
+      <div class="toggle">
+        <input type="checkbox" id="btn_modo">
+        <span class="button"></span>
+        <span class="label">☼</span>
       </div>
+    </div>
 
-      <div class="form-contenedor">
-        <input type="text" class="buscador" placeholder="search">
-      </div>
+    <div class="form-contenedor">
+    </div>
 
-      <!-- 🔥 SOLO ESTA PARTE SE ORGANIZA -->
-      <div class="config-layout">
+    <div class="config-layout">
 
-        <!-- 🔸 IZQUIERDA -->
-        <div class="panel-main">
+      <!-- IZQUIERDA -->
+      <div class="panel-main">
+        
+        <div id="adminPanel" style="display:none;">
 
-          <!-- ADMIN -->
-          <div id="adminPanel" style="display:none;">
-            <h2>Gestión de Usuarios</h2>
+          <h2>👥 Gestión de Usuarios</h2>
+          <table>
+            <thead>
+              <tr><th>Usuario</th><th>Rol</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="tablaUsuarios"></tbody>
+          </table>
+          <button id="agregarUser">+ Agregar Usuario</button>
 
-            <table>
-              <thead>
-                <tr>
-                  <th>Usuario</th>
-                  <th>Rol</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="tablaUsuarios"></tbody>
-            </table>
+          <h2 style="margin-top:30px;">🏭 Proveedores</h2>
+          <table>
+            <thead>
+              <tr><th>Nombre</th><th>Correo</th><th>Ubicación</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="tablaProveedores"></tbody>
+          </table>
+          <button id="agregarProveedor">+ Agregar Proveedor</button>
 
-            <button id="agregarUser">Agregar Usuario</button>
-          </div>
-
-          <!-- USUARIO NORMAL -->
-          <div id="userPanel" style="display:none;">
-            <h2>Cambiar contraseña</h2>
-
-            <input type="password" id="nuevaPass" placeholder="Nueva contraseña">
-            <button id="btnCambiarPass">Guardar</button>
-          </div>
+          <h2 style="margin-top:30px;">🏷️ Categorías</h2>
+          <table>
+            <thead>
+              <tr><th>Nombre</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="tablaCategorias"></tbody>
+          </table>
+          <button id="agregarCategoria">+ Agregar Categoría</button>
 
         </div>
 
-        <!-- 🔸 DERECHA -->
-        <div class="panel-user">
-          <div class="confi">
-            <img src="../img/icono_user.png" alt="">
-            <h2 id="usuario"></h2>
-            <h3 id="rol"></h3>
+        <!-- ── EMPLEADO / CAJERO ── -->
+        <div id="userPanel" style="display:none;">
+
+          <div class="user-info-header">
+            <h2>👤 Mi Perfil</h2>
+            <button class="btn-pass" id="btnAbrirCambioPass">🔒 Cambiar contraseña</button>
+          </div>
+
+          <table class="tabla-perfil">
+            <tbody>
+              <tr>
+                <td class="label-col">Nombre</td>
+                <td id="info-nombre">—</td>
+              </tr>
+              <tr>
+                <td class="label-col">Correo</td>
+                <td id="info-correo">—</td>
+              </tr>
+              <tr>
+                <td class="label-col">Usuario</td>
+                <td id="info-usuario">—</td>
+              </tr>
+              <tr>
+                <td class="label-col">Rol</td>
+                <td id="info-rol">—</td>
+              </tr>
+              <tr>
+                <td class="label-col">Estado</td>
+                <td id="info-estado">—</td>
+              </tr>
+              <tr>
+                <td class="label-col">Contraseña</td>
+                <td>
+                  <input type="password" value="password" readonly class="pass-readonly">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+
+      </div>
+
+      <!-- DERECHA -->
+      <div class="panel-user">
+        <div class="confi">
+          <img src="../img/icono_user.png" alt="usuario">
+          <h2 id="usuario"></h2>
+          <h3 id="rol"></h3>
+          <p id="ultimoAcceso" class="ultimo-acceso"></p>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:5px;width:100%;">
+            <button id="btnEditarPerfil">Editar Mi Perfil</button>
             <button id="cerrar">Cerrar sesión</button>
           </div>
         </div>
-
       </div>
 
-    </main>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL USUARIO -->
+<div id="modalUser" class="modal hidden">
+  <div class="modal-overlay" onclick="cerrarModal()"></div>
+  <div class="modal-content">
+    <h2 id="modalTitle">Usuario</h2>
+    <input type="hidden" id="id_usuario">
+    <div class="form-group"><input type="text"  id="nombre"       placeholder="Nombre"></div>
+    <div class="form-group"><input type="email" id="correo"       placeholder="Correo"></div>
+    <div class="form-group"><input type="text"  id="usuarioInput" placeholder="Usuario"></div>
+    <div class="form-group">
+      <select id="rolInput">
+        <option value="administrador">Administrador</option>
+        <option value="cajero">Cajero</option>
+        <option value="empleado">Empleado</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <select id="estado">
+        <option value="1">Activo</option>
+        <option value="0">Inactivo</option>
+      </select>
+    </div>
+    <div id="seccionContrasena"></div>
+    <div class="modal-actions">
+      <button id="guardarUser">Guardar</button>
+      <button id="cerrarModalBtn">Cerrar</button>
+    </div>
   </div>
+</div>
 
-  <!-- 🔹 SCRIPT MENU -->
-  <script>
-    const btn = document.getElementById("btn");
-    const menu = document.getElementById("menu");
+<!-- MODAL PROVEEDOR -->
+<div id="modalProveedor" class="modal hidden">
+  <div class="modal-overlay" onclick="cerrarModalProveedor()"></div>
+  <div class="modal-content">
+    <h2 id="modalTitleProv">Proveedor</h2>
+    <input type="hidden" id="id_proveedor">
+    <div class="form-group"><input type="text"  id="provNombre"    placeholder="Nombre"></div>
+    <div class="form-group"><input type="email" id="provCorreo"    placeholder="Correo"></div>
+    <div class="form-group"><input type="text"  id="provUbicacion" placeholder="Ubicación"></div>
+    <div class="modal-actions">
+      <button id="guardarProveedor">Guardar</button>
+      <button onclick="cerrarModalProveedor()">Cerrar</button>
+    </div>
+  </div>
+</div>
 
-    btn.addEventListener("click", () => {
-      menu.classList.toggle("activo");
-    });
-  </script>
+<!-- MODAL CATEGORÍA -->
+<div id="modalCategoria" class="modal hidden">
+  <div class="modal-overlay" onclick="cerrarModalCategoria()"></div>
+  <div class="modal-content">
+    <h2 id="modalTitleCat">Categoría</h2>
+    <input type="hidden" id="id_categoria">
+    <div class="form-group"><input type="text" id="catNombre" placeholder="Nombre de la categoría"></div>
+    <div class="modal-actions">
+      <button id="guardarCategoria">Guardar</button>
+      <button onclick="cerrarModalCategoria()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CAMBIAR CONTRASEÑA (empleado/cajero) -->
+<div id="modalCambiarPass" class="modal hidden">
+  <div class="modal-overlay" onclick="cerrarModalPass()"></div>
+  <div class="modal-content modal-pass">
+    <h2>🔒 Cambiar Contraseña</h2>
+    <p class="modal-pass-desc">Primero debes ingresar tu contraseña actual.</p>
+
+    <div class="form-group">
+      <label class="form-label">Contraseña actual</label>
+      <input type="password" id="passActual" placeholder="••••••••">
+    </div>
+    <div class="form-group" id="grupoNueva" style="display:none;">
+      <label class="form-label">Nueva contraseña</label>
+      <input type="password" id="passNueva" placeholder="••••••••">
+    </div>
+    <div class="form-group" id="grupoConfirmar" style="display:none;">
+      <label class="form-label">Confirmar nueva contraseña</label>
+      <input type="password" id="passConfirmar" placeholder="••••••••">
+    </div>
+
+    <div id="passError" class="pass-error" style="display:none;"></div>
+
+    <div class="modal-actions">
+      <button id="btnGuardarPass">Guardar</button>
+      <button onclick="cerrarModalPass()" class="btn-cancelar">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById("btn").addEventListener("click", () => {
+    document.getElementById("menu").classList.toggle("activo");
+  });
+</script>
 
 </body>
-
 </html>

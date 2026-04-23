@@ -1,78 +1,87 @@
 import { getConnection } from "./db_conectar.js";
+import bcrypt from "bcryptjs";
 
-// 🔹 obtener todos
+// ── Obtener todos ────────────────────────────────────────────────────────────
 export const getUsuarios = async () => {
   const conn = await getConnection();
-  const [rows] = await conn.query("SELECT id_usuario, nombre, correo, usuario, rol, estado FROM usuarios");
+  const [rows] = await conn.query(`
+    SELECT id_usuario, nombre, correo, usuario, rol, estado
+    FROM usuarios
+  `);
   return rows;
 };
 
-// 🔹 crear
+// ── Obtener uno ──────────────────────────────────────────────────────────────
+export const getUsuario = async (id) => {
+  const conn = await getConnection();
+  const [rows] = await conn.query(
+    "SELECT id_usuario, nombre, correo, usuario, rol, estado FROM usuarios WHERE id_usuario = ?",
+    [id]
+  );
+  if (rows.length === 0) return null;
+  return rows[0];
+};
+
+// ── Crear ────────────────────────────────────────────────────────────────────
 export const crearUsuario = async (data) => {
   const conn = await getConnection();
-
   const sql = `
     INSERT INTO usuarios (nombre, correo, usuario, contrasena, rol, estado)
-    VALUES (?, ?, ?, ?, ?, 1)
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
-
   await conn.query(sql, [
     data.nombre,
     data.correo,
     data.usuario,
-    data.contrasena,
-    data.rol
+    await bcrypt.hash(data.contrasena, 10),
+    data.rol,
+    data.estado ?? 1
   ]);
+  return { ok: true };
 };
 
-// 🔹 obtener uno
-export const getUsuario = async (id) => {
-  const conn = await getConnection();
-  const [rows] = await conn.query("SELECT * FROM usuarios WHERE id_usuario = ?", [id]);
-  return rows[0];
-};
-
-// 🔹 actualizar
+// ── Actualizar ───────────────────────────────────────────────────────────────
 export const actualizarUsuario = async (id, data) => {
   const conn = await getConnection();
-
-  await conn.query(`
-    UPDATE usuarios 
-    SET nombre=?, correo=?, usuario=?, rol=?, estado=?
-    WHERE id_usuario=?
-  `, [
-    data.nombre,
-    data.correo,
-    data.usuario,
-    data.rol,
-    data.estado,
-    id
-  ]);
+  await conn.query(
+    `UPDATE usuarios SET nombre=?, correo=?, usuario=?, rol=?, estado=? WHERE id_usuario=?`,
+    [data.nombre, data.correo, data.usuario, data.rol, data.estado, id]
+  );
+  return { ok: true };
 };
 
-// 🔹 cambiar contraseña (validando actual)
+// ── Cambiar contraseña ───────────────────────────────────────────────────────
 export const cambiarPassword = async (id, actual, nueva) => {
   const conn = await getConnection();
-
   const [rows] = await conn.query(
-    "SELECT contrasena FROM usuarios WHERE id_usuario=?",
+    "SELECT contrasena FROM usuarios WHERE id_usuario = ?",
     [id]
   );
 
-  if (rows[0].contrasena !== actual) {
-    return false;
-  }
+  if (rows.length === 0) return { ok: false, msg: "Usuario no encontrado" };
 
+  const match = await bcrypt.compare(actual, rows[0].contrasena);
+  if (!match) return { ok: false, msg: "Contraseña actual incorrecta" };
+
+  const hash = await bcrypt.hash(nueva, 10);
   await conn.query(
-    "UPDATE usuarios SET contrasena=? WHERE id_usuario=?",
-    [nueva, id]
+    "UPDATE usuarios SET contrasena = ? WHERE id_usuario = ?",
+    [hash, id]
   );
-
-  return true;
+  return { ok: true, msg: "Contraseña actualizada" };
 };
 
-// 🔹 eliminar
+// ── Eliminar ─────────────────────────────────────────────────────────────────
 export const eliminarUsuario = async (id) => {
-  const conn = await getConnection();
-  await conn.query("DELETE FROM usuarios WHERE id_usuario=?", [id]);
+  try {
+    const conn = await getConnection();
+    await conn.query("DELETE FROM usuarios WHERE id_usuario = ?", [id]);
+    return { ok: true };
+  } catch (error) {
+    console.error("Error MySQL:", error.code);
+    if (error.code === "ER_ROW_IS_REFERENCED_2") {
+      return { ok: false, mensaje: "No puedes eliminar este usuario porque tiene ventas registradas" };
+    }
+    return { ok: false, mensaje: "Error interno del servidor" };
+  }
 };

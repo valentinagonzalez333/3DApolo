@@ -240,3 +240,81 @@ button:hover .star-6 {
         font-size: 13px;
     }
 }
+/* ============================================================
+   TOASTS - Agrega esto al final de tu login.css
+   (y también en tu CSS global para que funcione en todas las páginas)
+   ============================================================ */
+
+#toast-contenedor {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  min-width: 280px;
+  max-width: 380px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+  pointer-events: all;
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast.toast-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Colores por tipo */
+.toast-error   { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.toast-success { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.toast-warning { background: linear-gradient(135deg, #f39c12, #d68910); }
+.toast-info    { background: linear-gradient(135deg, #3498db, #2980b9); }
+
+.toast-icono {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.toast-mensaje {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.toast-cerrar {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.toast-cerrar:hover {
+  color: #fff;
+}

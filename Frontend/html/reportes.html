@@ -1,63 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administrador</title>
-  <link rel="stylesheet" href="../css/reportes.css">
-  <script src="../js/usuarios.js" defer></script>
+  <title>Reportes</title>
+
+  <link rel="stylesheet" href="../css/panel.css">
+  <script src="../js/reportes.js" defer></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
-  <div class="layout">
 
+<div class="layout">
 
-    <aside class="menu" id="menu">
-      <nav>
-        <ul>
-          <li><a href="/inicio">Dashboard</a></li>
-          <li><a href="/productos">Productos</a></li>
-          <li><a href="/ventas">Ventas</a></li>
-          <li><a href="/reportes">Reportes</a></li>
-          <li><a href="/usuarios">Usuarios</a></li>
-          <li><a href="/gastos">Gastos</a></li>
-          <li><a href="/configuracion">Configuración</a></li>
-        </ul>
-      </nav>
-    </aside>
+  <!-- MENU -->
+  <aside class="menu" id="menu">
+    <nav>
+      <ul>
+        <li><a href="/inicio">Dashboard</a></li>
+        <li><a href="/productos">Productos</a></li>
+        <li><a href="/ventas">Ventas</a></li>
+        <li><a href="/reportes" >Informe</a></li>
+        <li><a href="/gastos">Gastos</a></li>
+        <li><a href="/configuracion">Configuración</a></li>
+      </ul>
+    </nav>
+  </aside>
 
-    <main class="contenido">
+  <main class="contenido">
 
+    <button class="btn-menu" id="btn">☰</button>
 
-      <button class="btn-menu" id="btn">☰</button>
+    <div class="container">
+      <div class="toggle">
+        <input type="checkbox" id="btn_modo">
+        <span class="button"></span>
+        <span class="label">☼</span>
+      </div>
+    </div>
 
-      <!-- From Uiverse.io by Pradeepsaranbishnoi -->
-      <div class="container">
-        <div class="toggle">
-          <input type="checkbox" id="btn_modo">
-          <span class="button"></span>
-          <span class="label">☼</span>
-        </div>
+    <div class="form-contenedor">
+      <input type="text" id="buscador" class="buscador" placeholder="Buscar movimiento...">
+    </div>
+
+    <!-- CARDS -->
+    <div class="cards">
+
+      <div class="card ventas">
+        <i data-lucide="trending-up"></i>
+        <p>Ventas</p>
+        <h2 id="totalVentas">0</h2>
       </div>
 
-      <div class="form-contenedor">
-        <input type="text" class="buscador" placeholder="  search">
+      <div class="card gastos">
+        <i data-lucide="wallet"></i>
+        <p>Compras</p>
+        <h2 id="totalCompras">0</h2>
       </div>
 
-    </main>
+      <div class="card usuarios">
+        <i data-lucide="dollar-sign"></i>
+        <p>Ganancia</p>
+        <h2 id="ganancia">0</h2>
+      </div>
+<div class="card">
+    <i data-lucide="wallet"></i>
+    <p>Gastos</p>
+    <h2 id="totalGastos">0</h2>
+</div>
+    </div>
 
-  </div>
+    <!-- TABLA -->
+    <!-- NAVEGACIÓN MES -->
+<div style="display:flex; align-items:center; gap:12px; margin:0 0 15px 10px;">
+    <button id="btnMesAnterior">‹</button>
+    <h3 id="tituloPeriodo" style="margin:0;"></h3>
+    <button id="btnMesSiguiente">›</button>
+</div>
 
-  <script>
-    const btn = document.getElementById("btn");
-    const menu = document.getElementById("menu");
+<!-- TABLA VENTAS -->
+<div class="tabla">
+    <div class="tabla-header">
+        <h3><i data-lucide="trending-up"></i> Ventas</h3>
+        <span>detalle por producto</span>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody id="tablaVentas"></tbody>
+    </table>
+</div>
 
-    btn.addEventListener("click", () => {
-      menu.classList.toggle("activo");
-    });
-  </script>
+<!-- TABLA GASTOS -->
+<div class="tabla" style="margin-top:20px;">
+    <div class="tabla-header">
+        <h3><i data-lucide="wallet"></i> Gastos y Compras</h3>
+        <span>egresos del mes</span>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Monto</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody id="tablaGastos"></tbody>
+    </table>
+</div>
+
+  </main>
+
+</div>
+
+<script>
+  const btn = document.getElementById("btn");
+  const menu = document.getElementById("menu");
+
+  btn.addEventListener("click", () => {
+    menu.classList.toggle("activo");
+  });
+
+  lucide.createIcons();
+</script>
+
 </body>
-
 </html>
