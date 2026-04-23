@@ -230,7 +230,7 @@ document.getElementById("formGasto")?.addEventListener("submit", async (e) => {
   }
 });
 
-// ── Preparar edición ──────────────────────────────────────────────────────────
+// ── Preparar edición
 window.prepararEdicion = async (id) => {
   try {
     const res  = await fetch(`${API}/gastos`, { headers: getHeaders() });
