@@ -1,8 +1,14 @@
 const API = "/api";
 
+// ── Auth helper ───────────────────────────────────────────────────────────────
+const getHeaders = () => ({
+  "Authorization": `Bearer ${sessionStorage.getItem("token")}`,
+  "Content-Type": "application/json"
+});
+
 async function verificarSesion() {
   try {
-    const res = await fetch(`${API}/me`, { credentials: "include" });
+    const res = await fetch(`${API}/me`, { headers: getHeaders() });
     if (!res.ok) { window.location.href = "/login"; return false; }
     return true;
   } catch {
@@ -83,12 +89,10 @@ function mostrarCamposFrecuencia(frecuencia) {
     semanal: "campoSemanal",
     diaria:  "campoDiaria"
   };
-
   Object.values(campos).forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = "none";
   });
-
   const visible = campos[frecuencia];
   if (visible) {
     const el = document.getElementById(visible);
@@ -99,7 +103,7 @@ function mostrarCamposFrecuencia(frecuencia) {
 // ── Cargar gastos ─────────────────────────────────────────────────────────────
 const cargarGastos = async () => {
   try {
-    const res  = await fetch(`${API}/gastos`, { credentials: "include" });
+    const res  = await fetch(`${API}/gastos`, { headers: getHeaders() });
     const data = await res.json();
 
     const tabla = document.getElementById("tabla-gastos");
@@ -161,26 +165,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   cargarGastos();
 
-  // Botón abrir modal
   document.getElementById("btnAbrirAgregar").addEventListener("click", () => {
-    cerrarModal(); // resetea campos primero
+    cerrarModal();
     abrirModal();
   });
 
-  // Botón cerrar modal
   document.getElementById("btnCerrar").addEventListener("click", cerrarModal);
 
-  // Cerrar al hacer click en el fondo del modal
   document.getElementById("gasto").addEventListener("click", (e) => {
     if (e.target === document.getElementById("gasto")) cerrarModal();
   });
 
-  // Cambio de frecuencia → mostrar campos correctos
   document.getElementById("frecuencia").addEventListener("change", (e) => {
     mostrarCamposFrecuencia(e.target.value);
   });
 
-  // Estado inicial: mostrar solo campo "unica"
   mostrarCamposFrecuencia("unica");
 });
 
@@ -198,22 +197,17 @@ document.getElementById("formGasto")?.addEventListener("submit", async (e) => {
     frecuencia
   };
 
-  // Recolectar campos según la frecuencia activa
   if (frecuencia === "unica") {
     datos.fecha = document.getElementById("fecha_pago").value || null;
-
   } else if (frecuencia === "mensual") {
     datos.dia_del_mes  = document.getElementById("dia_del_mes").value          || null;
     datos.fecha_inicio = document.getElementById("fecha_inicio_mensual").value || null;
-
   } else if (frecuencia === "anual") {
     datos.dia_del_mes  = document.getElementById("dia_anual").value            || null;
     datos.mes_del_anio = document.getElementById("mes_anual").value            || null;
     datos.fecha_inicio = document.getElementById("fecha_inicio_anual").value   || null;
-
   } else if (frecuencia === "semanal") {
     datos.fecha_inicio = document.getElementById("fecha_inicio_semanal").value || null;
-
   } else if (frecuencia === "diaria") {
     datos.fecha_inicio = document.getElementById("fecha_inicio_diaria").value  || null;
   }
@@ -224,18 +218,12 @@ document.getElementById("formGasto")?.addEventListener("submit", async (e) => {
   try {
     const res = await fetch(url, {
       method: metodo,
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
+      headers: getHeaders(),
       body: JSON.stringify(datos)
     });
 
-    if (res.ok) {
-      cerrarModal();
-      cargarGastos();
-    } else {
-      const err = await res.json();
-      alert(err.msg || err.error || "Error al guardar");
-    }
+    if (res.ok) { cerrarModal(); cargarGastos(); }
+    else { const err = await res.json(); alert(err.msg || err.error || "Error al guardar"); }
   } catch (error) {
     console.error("Error guardando gasto:", error);
     alert("Error de conexión");
@@ -245,42 +233,36 @@ document.getElementById("formGasto")?.addEventListener("submit", async (e) => {
 // ── Preparar edición ──────────────────────────────────────────────────────────
 window.prepararEdicion = async (id) => {
   try {
-    const res  = await fetch(`${API}/gastos`, { credentials: "include" });
+    const res  = await fetch(`${API}/gastos`, { headers: getHeaders() });
     const data = await res.json();
     const g    = data.find(x => x.id_gastos === id);
     if (!g) return alert("Gasto no encontrado");
 
-    document.getElementById("gastoId").value            = g.id_gastos;
-    document.getElementById("desc").value               = g.descripcion || "";
-    document.getElementById("monto").value              = g.monto       || "";
-    document.getElementById("tipo").value               = g.tipo        || "Gasto";
-    document.getElementById("frecuencia").value         = g.frecuencia  || "unica";
-    document.getElementById("modalTitulo").textContent  = "Editar Gasto";
+    document.getElementById("gastoId").value           = g.id_gastos;
+    document.getElementById("desc").value              = g.descripcion || "";
+    document.getElementById("monto").value             = g.monto       || "";
+    document.getElementById("tipo").value              = g.tipo        || "Gasto";
+    document.getElementById("frecuencia").value        = g.frecuencia  || "unica";
+    document.getElementById("modalTitulo").textContent = "Editar Gasto";
 
     mostrarCamposFrecuencia(g.frecuencia || "unica");
 
-    // Rellenar campos específicos de la frecuencia
     if (g.frecuencia === "unica") {
       document.getElementById("fecha_pago").value = g.fecha ? g.fecha.split("T")[0] : "";
-
     } else if (g.frecuencia === "mensual") {
       document.getElementById("dia_del_mes").value          = g.dia_del_mes  || "";
       document.getElementById("fecha_inicio_mensual").value = g.fecha_inicio ? g.fecha_inicio.split("T")[0] : "";
-
     } else if (g.frecuencia === "anual") {
       document.getElementById("dia_anual").value          = g.dia_del_mes  || "";
       document.getElementById("mes_anual").value          = g.mes_del_anio || "";
       document.getElementById("fecha_inicio_anual").value = g.fecha_inicio ? g.fecha_inicio.split("T")[0] : "";
-
     } else if (g.frecuencia === "semanal") {
       document.getElementById("fecha_inicio_semanal").value = g.fecha_inicio ? g.fecha_inicio.split("T")[0] : "";
-
     } else if (g.frecuencia === "diaria") {
       document.getElementById("fecha_inicio_diaria").value = g.fecha_inicio ? g.fecha_inicio.split("T")[0] : "";
     }
 
     abrirModal();
-
   } catch (err) {
     console.error("Error cargando gasto para editar:", err);
     alert("Error al cargar el gasto");
@@ -293,7 +275,7 @@ window.eliminarGasto = async (id) => {
   try {
     const res = await fetch(`${API}/gastos/${id}`, {
       method: "DELETE",
-      credentials: "include"
+      headers: getHeaders()
     });
     if (res.ok) cargarGastos();
     else alert("Error al eliminar");

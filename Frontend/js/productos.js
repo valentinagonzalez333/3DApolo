@@ -1,8 +1,13 @@
 const API = "/api";
 
+// ── Auth helper ───────────────────────────────────────────────────────────────
+const getHeaders = () => ({
+  "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+});
+
 async function verificarSesion() {
   try {
-    const res = await fetch(`${API}/me`, { credentials: "include" });
+    const res = await fetch(`${API}/me`, { headers: { ...getHeaders(), "Content-Type": "application/json" } });
     if (!res.ok) { window.location.href = "/login"; return false; }
     return true;
   } catch {
@@ -19,8 +24,8 @@ const proveedor    = document.getElementById("proveedor");
 const productoId   = document.getElementById("productoId");
 const formProducto = document.getElementById("formProducto");
 
-let editando           = false;
-let todosLosProductos  = [];
+let editando          = false;
+let todosLosProductos = [];
 
 // ── Modo oscuro ───────────────────────────────────────────────────────────────
 const body = document.body;
@@ -39,7 +44,7 @@ mode?.addEventListener("change", () => {
 // ── Cargar productos ──────────────────────────────────────────────────────────
 const cargarProductos = async () => {
   try {
-    const res = await fetch(`${API}/productos`, { credentials: "include" });
+    const res = await fetch(`${API}/productos`, { headers: getHeaders() });
     todosLosProductos = await res.json();
     renderTabla(todosLosProductos);
   } catch (err) {
@@ -50,11 +55,8 @@ const cargarProductos = async () => {
 // ── Render tabla ──────────────────────────────────────────────────────────────
 const renderTabla = (data) => {
   tabla.innerHTML = "";
-
   data.forEach(p => {
-    // URL relativa — funciona en local y en producción sin cambios
     const imgSrc = p.url || "/img/default.png";
-
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${p.id_producto}</td>
@@ -88,12 +90,12 @@ document.getElementById("buscador")?.addEventListener("input", (e) => {
   renderTabla(filtrados);
 });
 
-// ── Cargar selects (categorías y proveedores) ─────────────────────────────────
+// ── Cargar selects ────────────────────────────────────────────────────────────
 const cargarSelects = async () => {
   try {
     const [cat, prov] = await Promise.all([
-      fetch(`${API}/categorias`,  { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/proveedores`, { credentials: "include" }).then(r => r.json())
+      fetch(`${API}/categorias`,  { headers: getHeaders() }).then(r => r.json()),
+      fetch(`${API}/proveedores`, { headers: getHeaders() }).then(r => r.json())
     ]);
 
     categoria.innerHTML = cat
@@ -132,9 +134,9 @@ formProducto.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const fd = new FormData();
-  fd.append("nombre",       document.getElementById("nombre").value);
-  fd.append("categoria_id", document.getElementById("categoria").value);
-  fd.append("proveedor_id", document.getElementById("proveedor").value);
+  fd.append("nombre",        document.getElementById("nombre").value);
+  fd.append("categoria_id",  document.getElementById("categoria").value);
+  fd.append("proveedor_id",  document.getElementById("proveedor").value);
   fd.append("precio_compra", document.getElementById("compra").value);
   fd.append("precio_venta",  document.getElementById("venta").value);
   fd.append("stock",         document.getElementById("stock").value);
@@ -151,17 +153,14 @@ formProducto.addEventListener("submit", async (e) => {
   const metodo = editando ? "PUT" : "POST";
 
   try {
+    // FormData no lleva Content-Type manual — el navegador lo pone con boundary
     const res = await fetch(url, {
       method: metodo,
-      credentials: "include",
+      headers: getHeaders(),
       body: fd
     });
 
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(err);
-    }
-
+    if (!res.ok) throw new Error(await res.text());
     cerrarModal();
     cargarProductos();
 
@@ -174,7 +173,6 @@ formProducto.addEventListener("submit", async (e) => {
 // ── Editar ────────────────────────────────────────────────────────────────────
 window.editarProducto = async (id) => {
   try {
-    // Reusar los datos ya cargados en memoria — evita un fetch extra
     const p = todosLosProductos.find(x => x.id_producto === id);
     if (!p) return alert("Producto no encontrado");
 
@@ -206,16 +204,13 @@ window.editarProducto = async (id) => {
 // ── Eliminar ──────────────────────────────────────────────────────────────────
 window.eliminarProducto = async (id) => {
   if (!confirm("¿Eliminar este producto?")) return;
-
   try {
     const res = await fetch(`${API}/productos/${id}`, {
       method: "DELETE",
-      credentials: "include"
+      headers: getHeaders()
     });
-
     if (!res.ok) throw new Error(await res.text());
     cargarProductos();
-
   } catch (err) {
     console.error(err);
     alert("Error eliminando producto: " + err.message);
@@ -226,7 +221,6 @@ window.eliminarProducto = async (id) => {
 document.addEventListener("DOMContentLoaded", async () => {
   const ok = await verificarSesion();
   if (!ok) return;
-
   cargarProductos();
   cargarSelects();
 });

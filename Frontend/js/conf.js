@@ -1,13 +1,16 @@
 // ── Constante base API (relativa, funciona en localhost Y en Railway/Vercel) ──
 const API = "/api";
 
+// ── Auth helper ───────────────────────────────────────────────────────────────
+const getHeaders = () => ({
+  "Authorization": `Bearer ${sessionStorage.getItem("token")}`,
+  "Content-Type": "application/json"
+});
+
 async function verificarSesion() {
   try {
-    const res = await fetch(`${API}/me`, { credentials: "include" });
-    if (!res.ok) {
-      window.location.href = "/login";
-      return false;
-    }
+    const res = await fetch(`${API}/me`, { headers: getHeaders() });
+    if (!res.ok) { window.location.href = "/login"; return false; }
     return true;
   } catch {
     window.location.href = "/login";
@@ -31,9 +34,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const ok = await verificarSesion();
   if (!ok) return;
 
-  // Usar siempre sessionStorage (consistente con login.js)
   const miId = sessionStorage.getItem("id_usuario");
-  const rol   = sessionStorage.getItem("rol");
+  const rol  = sessionStorage.getItem("rol");
 
   actualizarInterfazDerecha();
 
@@ -49,7 +51,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("cerrar")?.addEventListener("click", async () => {
     sessionStorage.clear();
-    await fetch("/logout", { method: "POST", credentials: "include" }).catch(() => {});
+    await fetch(`${API}/logout`, { method: "POST", headers: getHeaders() }).catch(() => {});
     window.location.href = "/login";
   });
 
@@ -60,13 +62,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // ── USUARIO: abrir modal nuevo ────────────────────────────────────────────────
 document.getElementById("agregarUser")?.addEventListener("click", () => {
-  document.getElementById("id_usuario").value        = "";
-  document.getElementById("nombre").value            = "";
-  document.getElementById("correo").value            = "";
-  document.getElementById("usuarioInput").value      = "";
-  document.getElementById("rolInput").value          = "cajero";
-  document.getElementById("estado").value            = "1";
-  document.getElementById("modalTitle").textContent  = "Nuevo Usuario";
+  document.getElementById("id_usuario").value       = "";
+  document.getElementById("nombre").value           = "";
+  document.getElementById("correo").value           = "";
+  document.getElementById("usuarioInput").value     = "";
+  document.getElementById("rolInput").value         = "cajero";
+  document.getElementById("estado").value           = "1";
+  document.getElementById("modalTitle").textContent = "Nuevo Usuario";
 
   document.getElementById("seccionContrasena").innerHTML = `
     <div class="form-group">
@@ -94,33 +96,27 @@ document.getElementById("guardarUser")?.addEventListener("click", async () => {
     let res;
 
     if (!idEnModal) {
-      // ── Crear nuevo usuario ──────────────────────────────────────────────
-      const pass     = document.getElementById("contrasena")?.value;
+      const pass      = document.getElementById("contrasena")?.value;
       const confirmar = document.getElementById("confirmarContrasena")?.value;
-      if (!pass)            return alert("La contraseña es obligatoria.");
+      if (!pass)             return alert("La contraseña es obligatoria.");
       if (pass !== confirmar) return alert("Las contraseñas no coinciden.");
       datos.contrasena = pass;
 
       res = await fetch(`${API}/usuarios`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: getHeaders(),
         body: JSON.stringify(datos)
       });
 
     } else {
-      // ── Editar usuario existente ─────────────────────────────────────────
       const actual = document.getElementById("contrasenaActual")?.value;
       const nueva  = document.getElementById("nuevaContrasena")?.value;
 
-      // Si el admin quiso cambiar la contraseña, la cambiamos primero
       if (actual) {
         if (!nueva) return alert("Escribe la nueva contraseña.");
-        // PUT /api/usuarios/pass/:id  ← método correcto
         const rp = await fetch(`${API}/usuarios/pass/${idEnModal}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          headers: getHeaders(),
           body: JSON.stringify({ actual, nueva })
         });
         if (!rp.ok) {
@@ -129,15 +125,12 @@ document.getElementById("guardarUser")?.addEventListener("click", async () => {
         }
       }
 
-      // Actualizar datos generales
       res = await fetch(`${API}/usuarios/${idEnModal}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: getHeaders(),
         body: JSON.stringify(datos)
       });
 
-      // Si el admin editó su propio perfil, actualizar sessionStorage
       const miId = sessionStorage.getItem("id_usuario");
       if (res.ok && String(idEnModal) === String(miId)) {
         sessionStorage.setItem("usuario", datos.usuario);
@@ -146,13 +139,8 @@ document.getElementById("guardarUser")?.addEventListener("click", async () => {
       }
     }
 
-    if (res.ok) {
-      cerrarModal();
-      cargarUsuarios();
-    } else {
-      const e = await res.json();
-      alert(e.msg || "Error al guardar.");
-    }
+    if (res.ok) { cerrarModal(); cargarUsuarios(); }
+    else { const e = await res.json(); alert(e.msg || "Error al guardar."); }
   } catch {
     alert("Error de conexión.");
   }
@@ -162,11 +150,11 @@ document.getElementById("cerrarModalBtn")?.addEventListener("click", cerrarModal
 
 // ── PROVEEDOR: abrir modal nuevo ──────────────────────────────────────────────
 document.getElementById("agregarProveedor")?.addEventListener("click", () => {
-  document.getElementById("id_proveedor").value             = "";
-  document.getElementById("provNombre").value               = "";
-  document.getElementById("provCorreo").value               = "";
-  document.getElementById("provUbicacion").value            = "";
-  document.getElementById("modalTitleProv").textContent     = "Nuevo Proveedor";
+  document.getElementById("id_proveedor").value         = "";
+  document.getElementById("provNombre").value           = "";
+  document.getElementById("provCorreo").value           = "";
+  document.getElementById("provUbicacion").value        = "";
+  document.getElementById("modalTitleProv").textContent = "Nuevo Proveedor";
   document.getElementById("modalProveedor").classList.remove("hidden");
 });
 
@@ -181,12 +169,7 @@ document.getElementById("guardarProveedor")?.addEventListener("click", async () 
   try {
     const res = await fetch(
       id ? `${API}/proveedores/${id}` : `${API}/proveedores`,
-      {
-        method: id ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(datos)
-      }
+      { method: id ? "PUT" : "POST", headers: getHeaders(), body: JSON.stringify(datos) }
     );
     if (res.ok) { cerrarModalProveedor(); cargarProveedores(); }
     else { const e = await res.json(); alert(e.msg || "Error al guardar proveedor."); }
@@ -195,9 +178,9 @@ document.getElementById("guardarProveedor")?.addEventListener("click", async () 
 
 // ── CATEGORÍA: abrir modal nuevo ──────────────────────────────────────────────
 document.getElementById("agregarCategoria")?.addEventListener("click", () => {
-  document.getElementById("id_categoria").value            = "";
-  document.getElementById("catNombre").value               = "";
-  document.getElementById("modalTitleCat").textContent     = "Nueva Categoría";
+  document.getElementById("id_categoria").value        = "";
+  document.getElementById("catNombre").value           = "";
+  document.getElementById("modalTitleCat").textContent = "Nueva Categoría";
   document.getElementById("modalCategoria").classList.remove("hidden");
 });
 
@@ -208,26 +191,21 @@ document.getElementById("guardarCategoria")?.addEventListener("click", async () 
   try {
     const res = await fetch(
       id ? `${API}/categorias/${id}` : `${API}/categorias`,
-      {
-        method: id ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(datos)
-      }
+      { method: id ? "PUT" : "POST", headers: getHeaders(), body: JSON.stringify(datos) }
     );
     if (res.ok) { cerrarModalCategoria(); cargarCategorias(); }
     else { const e = await res.json(); alert(e.msg || "Error al guardar categoría."); }
   } catch { alert("Error de conexión."); }
 });
 
-// ── MODAL CONTRASEÑA (usuario normal): abrir ──────────────────────────────────
+// ── MODAL CONTRASEÑA: abrir ───────────────────────────────────────────────────
 document.getElementById("btnAbrirCambioPass")?.addEventListener("click", () => {
-  document.getElementById("passActual").value              = "";
-  document.getElementById("passNueva").value               = "";
-  document.getElementById("passConfirmar").value           = "";
-  document.getElementById("grupoNueva").style.display      = "none";
-  document.getElementById("grupoConfirmar").style.display  = "none";
-  document.getElementById("passError").style.display       = "none";
+  document.getElementById("passActual").value             = "";
+  document.getElementById("passNueva").value              = "";
+  document.getElementById("passConfirmar").value          = "";
+  document.getElementById("grupoNueva").style.display     = "none";
+  document.getElementById("grupoConfirmar").style.display = "none";
+  document.getElementById("passError").style.display      = "none";
   document.getElementById("modalCambiarPass").classList.remove("hidden");
 });
 
@@ -241,40 +219,33 @@ document.getElementById("passActual")?.addEventListener("input", (e) => {
 // ── MODAL CONTRASEÑA: guardar ─────────────────────────────────────────────────
 document.getElementById("btnGuardarPass")?.addEventListener("click", async () => {
   const miId    = sessionStorage.getItem("id_usuario");
-  const actual   = document.getElementById("passActual").value.trim();
-  const nueva    = document.getElementById("passNueva").value.trim();
+  const actual  = document.getElementById("passActual").value.trim();
+  const nueva   = document.getElementById("passNueva").value.trim();
   const confirmar = document.getElementById("passConfirmar").value.trim();
 
   const mostrarError = (msg) => {
     const el = document.getElementById("passError");
-    el.textContent    = "⚠ " + msg;
-    el.style.display  = "block";
+    el.textContent   = "⚠ " + msg;
+    el.style.display = "block";
   };
 
   document.getElementById("passError").style.display = "none";
 
-  if (!actual)            return mostrarError("Ingresa tu contraseña actual.");
-  if (!nueva)             return mostrarError("Ingresa la nueva contraseña.");
-  if (nueva.length < 6)   return mostrarError("Mínimo 6 caracteres.");
-  if (nueva !== confirmar) return mostrarError("Las contraseñas no coinciden.");
-  if (nueva === actual)    return mostrarError("La nueva contraseña no puede ser igual a la actual.");
+  if (!actual)             return mostrarError("Ingresa tu contraseña actual.");
+  if (!nueva)              return mostrarError("Ingresa la nueva contraseña.");
+  if (nueva.length < 6)    return mostrarError("Mínimo 6 caracteres.");
+  if (nueva !== confirmar)  return mostrarError("Las contraseñas no coinciden.");
+  if (nueva === actual)     return mostrarError("La nueva contraseña no puede ser igual a la actual.");
 
   try {
-    // PUT /api/usuarios/pass/:id  ← método y ruta correctos
     const res = await fetch(`${API}/usuarios/pass/${miId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
+      headers: getHeaders(),
       body: JSON.stringify({ actual, nueva })
     });
 
-    if (res.ok) {
-      cerrarModalPass();
-      alert("✅ Contraseña actualizada.");
-    } else {
-      const e = await res.json();
-      mostrarError(e.msg || "Contraseña actual incorrecta.");
-    }
+    if (res.ok) { cerrarModalPass(); alert("✅ Contraseña actualizada."); }
+    else { const e = await res.json(); mostrarError(e.msg || "Contraseña actual incorrecta."); }
   } catch {
     mostrarError("Error de conexión.");
   }
@@ -287,17 +258,17 @@ function actualizarInterfazDerecha() {
   const elA = document.getElementById("ultimoAcceso");
 
   if (elU) elU.textContent = sessionStorage.getItem("usuario") || "";
-  if (elR) elR.textContent = sessionStorage.getItem("rol") || "";
+  if (elR) elR.textContent = sessionStorage.getItem("rol")     || "";
 
   if (elA) {
     const raw = sessionStorage.getItem("ultimo_acceso");
     if (raw) {
       const diff = Math.floor((new Date() - new Date(raw)) / 60000);
-      const hrs   = Math.floor(diff / 60);
-      const dias  = Math.floor(hrs / 24);
-      const txt   = diff < 1 ? "Conectado ahora mismo"
-        : diff < 60  ? `Hace ${diff} min`
-        : hrs  < 24  ? `Hace ${hrs} h`
+      const hrs  = Math.floor(diff / 60);
+      const dias = Math.floor(hrs / 24);
+      const txt  = diff < 1  ? "Conectado ahora mismo"
+        : diff < 60 ? `Hace ${diff} min`
+        : hrs  < 24 ? `Hace ${hrs} h`
         : `Hace ${dias} día${dias > 1 ? "s" : ""}`;
       elA.textContent = "🕐 " + txt;
     }
@@ -306,9 +277,9 @@ function actualizarInterfazDerecha() {
 
 // ── Cargar datos ──────────────────────────────────────────────────────────────
 async function cargarPerfil() {
-  const miId = sessionStorage.getItem("id_usuario"); // ← sessionStorage, no localStorage
+  const miId = sessionStorage.getItem("id_usuario");
   try {
-    const res  = await fetch(`${API}/usuarios/${miId}`, { credentials: "include" });
+    const res  = await fetch(`${API}/usuarios/${miId}`, { headers: getHeaders() });
     const data = await res.json();
     const u    = Array.isArray(data) ? data[0] : (data.data || data);
 
@@ -323,15 +294,13 @@ async function cargarPerfil() {
         ? '<span class="badge-activo">✓ Activo</span>'
         : '<span class="badge-inactivo">✗ Inactivo</span>';
     }
-  } catch (e) {
-    console.error("Error cargando perfil:", e);
-  }
+  } catch (e) { console.error("Error cargando perfil:", e); }
 }
 
 async function cargarUsuarios() {
   try {
-    const res  = await fetch(`${API}/usuarios`, { credentials: "include" });
-    const data = await res.json();
+    const res   = await fetch(`${API}/usuarios`, { headers: getHeaders() });
+    const data  = await res.json();
     const tbody = document.getElementById("tablaUsuarios");
     if (!tbody) return;
     tbody.innerHTML = "";
@@ -351,8 +320,8 @@ async function cargarUsuarios() {
 
 async function cargarProveedores() {
   try {
-    const res  = await fetch(`${API}/proveedores`, { credentials: "include" });
-    const data = await res.json();
+    const res   = await fetch(`${API}/proveedores`, { headers: getHeaders() });
+    const data  = await res.json();
     const tbody = document.getElementById("tablaProveedores");
     if (!tbody) return;
     tbody.innerHTML = "";
@@ -373,8 +342,8 @@ async function cargarProveedores() {
 
 async function cargarCategorias() {
   try {
-    const res  = await fetch(`${API}/categorias`, { credentials: "include" });
-    const data = await res.json();
+    const res   = await fetch(`${API}/categorias`, { headers: getHeaders() });
+    const data  = await res.json();
     const tbody = document.getElementById("tablaCategorias");
     if (!tbody) return;
     tbody.innerHTML = "";
@@ -394,7 +363,7 @@ async function cargarCategorias() {
 // ── Funciones globales ────────────────────────────────────────────────────────
 window.prepararEdicion = async (id) => {
   try {
-    const res  = await fetch(`${API}/usuarios/${id}`, { credentials: "include" });
+    const res  = await fetch(`${API}/usuarios/${id}`, { headers: getHeaders() });
     const data = await res.json();
     const u    = Array.isArray(data) ? data[0] : (data.data || data);
     if (!u) return alert("No se encontraron los datos.");
@@ -430,10 +399,7 @@ window.prepararEdicion = async (id) => {
 window.eliminarUsuario = async (id) => {
   if (!confirm("¿Eliminar este usuario?")) return;
   try {
-    const res = await fetch(`${API}/usuarios/${id}`, {
-      method: "DELETE",
-      credentials: "include"
-    });
+    const res  = await fetch(`${API}/usuarios/${id}`, { method: "DELETE", headers: getHeaders() });
     const data = await res.json();
     if (!res.ok) return alert(data.msg || "No se pudo eliminar.");
     cargarUsuarios();
@@ -442,7 +408,7 @@ window.eliminarUsuario = async (id) => {
 
 window.editarProveedor = async (id) => {
   try {
-    const res = await fetch(`${API}/proveedores/${id}`, { credentials: "include" });
+    const res = await fetch(`${API}/proveedores/${id}`, { headers: getHeaders() });
     const p   = await res.json();
     document.getElementById("id_proveedor").value         = p.id_proveedor;
     document.getElementById("provNombre").value           = p.nombre    || "";
@@ -456,14 +422,14 @@ window.editarProveedor = async (id) => {
 window.eliminarProveedor = async (id) => {
   if (!confirm("¿Eliminar este proveedor?")) return;
   try {
-    await fetch(`${API}/proveedores/${id}`, { method: "DELETE", credentials: "include" });
+    await fetch(`${API}/proveedores/${id}`, { method: "DELETE", headers: getHeaders() });
     cargarProveedores();
   } catch { console.error("Error eliminando proveedor"); }
 };
 
 window.editarCategoria = async (id) => {
   try {
-    const res = await fetch(`${API}/categorias/${id}`, { credentials: "include" });
+    const res = await fetch(`${API}/categorias/${id}`, { headers: getHeaders() });
     const c   = await res.json();
     document.getElementById("id_categoria").value        = c.id_categoria;
     document.getElementById("catNombre").value           = c.nombre || "";
@@ -475,7 +441,7 @@ window.editarCategoria = async (id) => {
 window.eliminarCategoria = async (id) => {
   if (!confirm("¿Eliminar esta categoría?")) return;
   try {
-    await fetch(`${API}/categorias/${id}`, { method: "DELETE", credentials: "include" });
+    await fetch(`${API}/categorias/${id}`, { method: "DELETE", headers: getHeaders() });
     cargarCategorias();
   } catch { console.error("Error eliminando categoría"); }
 };
@@ -491,10 +457,10 @@ buscador?.addEventListener("keydown", async (e) => {
 
   try {
     const [productos, usuarios, ventas, gastos] = await Promise.all([
-      fetch(`${API}/productos`, { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/usuarios`,  { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/ventas`,    { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/gastos`,    { credentials: "include" }).then(r => r.json())
+      fetch(`${API}/productos`, { headers: getHeaders() }).then(r => r.json()),
+      fetch(`${API}/usuarios`,  { headers: getHeaders() }).then(r => r.json()),
+      fetch(`${API}/ventas`,    { headers: getHeaders() }).then(r => r.json()),
+      fetch(`${API}/gastos`,    { headers: getHeaders() }).then(r => r.json())
     ]);
 
     const prod  = productos.find(p => p.nombre?.toLowerCase().includes(q));
@@ -510,9 +476,7 @@ buscador?.addEventListener("keydown", async (e) => {
     if (gasto) return (window.location.href = `/gastos?gasto=${gasto.id_gasto}`);
 
     alert("No se encontró nada.");
-  } catch {
-    alert("Error al buscar.");
-  }
+  } catch { alert("Error al buscar."); }
 });
 
 // ── Cerrar modales ────────────────────────────────────────────────────────────

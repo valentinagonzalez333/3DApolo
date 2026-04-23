@@ -67,6 +67,7 @@ document.getElementById("login-forma").addEventListener("submit", async (e) => {
     }
 
     if (resJson.ok) {
+       sessionStorage.setItem("token",         resJson.token);
       sessionStorage.setItem("usuario",       resJson.usuario);
       sessionStorage.setItem("rol",           resJson.rol);
       sessionStorage.setItem("id_usuario",    resJson.id_usuario);

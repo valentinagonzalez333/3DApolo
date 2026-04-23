@@ -3,9 +3,15 @@ const API = "/api";
 let productos = [];
 let carrito   = [];
 
+// ── Auth helper ───────────────────────────────────────────────────────────────
+const getHeaders = () => ({
+  "Authorization": `Bearer ${sessionStorage.getItem("token")}`,
+  "Content-Type": "application/json"
+});
+
 async function verificarSesion() {
   try {
-    const res = await fetch(`${API}/me`, { credentials: "include" });
+    const res = await fetch(`${API}/me`, { headers: getHeaders() });
     if (!res.ok) { window.location.href = "/login"; return false; }
     return true;
   } catch {
@@ -17,7 +23,7 @@ async function verificarSesion() {
 // ── Cargar productos ──────────────────────────────────────────────────────────
 async function cargarProductos() {
   try {
-    const res = await fetch(`${API}/productos`, { credentials: "include" });
+    const res = await fetch(`${API}/productos`, { headers: getHeaders() });
     productos = await res.json();
     renderProductos(productos);
   } catch (error) {
@@ -30,9 +36,7 @@ function renderProductos(lista) {
   cont.innerHTML = "";
 
   lista.forEach(p => {
-    // URL relativa — funciona en local y en producción
     const img = p.url || "/img/default.png";
-
     cont.innerHTML += `
       <div class="card-producto" onclick="agregar(${p.id_producto})">
         <img src="${img}" alt="${p.nombre}">
@@ -54,13 +58,10 @@ function agregar(id) {
   const prod = productos.find(p => p.id_producto === id);
   if (!prod) return;
 
-  const existe          = carrito.find(p => p.id === id);
-  const cantidadActual  = existe ? existe.cantidad : 0;
+  const existe         = carrito.find(p => p.id === id);
+  const cantidadActual = existe ? existe.cantidad : 0;
 
-  if (cantidadActual >= prod.stock) {
-    alert("No hay suficiente stock");
-    return;
-  }
+  if (cantidadActual >= prod.stock) { alert("No hay suficiente stock"); return; }
 
   if (existe) {
     existe.cantidad++;
@@ -84,7 +85,6 @@ function cambiarCantidad(id, delta) {
   if (!item || !prod) return;
 
   const nuevaCantidad = item.cantidad + delta;
-
   if (nuevaCantidad > prod.stock) { alert("Stock insuficiente"); return; }
 
   item.cantidad = nuevaCantidad;
@@ -121,7 +121,6 @@ function renderCarrito() {
       total            += sub;
       totalItems       += p.cantidad;
 
-      // URL relativa
       const img = p.url || "/img/default.png";
 
       const row = document.createElement("div");
@@ -158,8 +157,7 @@ async function guardarVenta() {
   try {
     const res  = await fetch(`${API}/ventas`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
+      headers: getHeaders(),
       body: JSON.stringify({ productos: carrito, metodo_pago: metodo })
     });
     const data = await res.json();
@@ -168,7 +166,7 @@ async function guardarVenta() {
       alert("Venta guardada correctamente");
       carrito = [];
       renderCarrito();
-      cargarProductos(); // refrescar stock
+      cargarProductos();
     } else {
       alert(data.msg || "Error al guardar venta");
     }
@@ -182,7 +180,6 @@ async function guardarVenta() {
 document.addEventListener("DOMContentLoaded", async () => {
   const ok = await verificarSesion();
   if (!ok) return;
-
   await cargarProductos();
   renderCarrito();
 });

@@ -1,5 +1,11 @@
 const API = "/api";
 
+// ── Auth helper ───────────────────────────────────────────────────────────────
+const getHeaders = () => ({
+  "Authorization": `Bearer ${sessionStorage.getItem("token")}`,
+  "Content-Type": "application/json"
+});
+
 // ── Modo oscuro ───────────────────────────────────────────────────────────────
 const body = document.body;
 const mode = document.getElementById("btn_modo");
@@ -17,7 +23,7 @@ mode?.addEventListener("change", () => {
 // ── Verificar sesión ──────────────────────────────────────────────────────────
 async function verificarSesion() {
   try {
-    const res = await fetch(`${API}/me`, { credentials: "include" });
+    const res = await fetch(`${API}/me`, { headers: getHeaders() });
     if (!res.ok) { window.location.href = "/login"; return false; }
     return true;
   } catch {
@@ -30,20 +36,20 @@ async function verificarSesion() {
 const cargarDashboard = async () => {
   try {
     const [gastos, productos, usuarios, ventas] = await Promise.all([
-      fetch(`${API}/gastos`,   { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/productos`,{ credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/usuarios`, { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/ventas`,   { credentials: "include" }).then(r => r.json())
+      fetch(`${API}/gastos`,    { headers: getHeaders() }).then(r => r.json()),
+      fetch(`${API}/productos`, { headers: getHeaders() }).then(r => r.json()),
+      fetch(`${API}/usuarios`,  { headers: getHeaders() }).then(r => r.json()),
+      fetch(`${API}/ventas`,    { headers: getHeaders() }).then(r => r.json())
     ]);
 
     const totalGastos = gastos.reduce((acc, g) => acc + Number(g.monto || 0), 0);
     const totalVentas = ventas.reduce((acc, v) => acc + Number(v.total || 0), 0);
 
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set("gastos",   "$" + totalGastos.toLocaleString("es-CO"));
+    set("gastos",    "$" + totalGastos.toLocaleString("es-CO"));
     set("productos", productos.length);
     set("usuarios",  usuarios.length);
-    set("ventas",   "$" + totalVentas.toLocaleString("es-CO"));
+    set("ventas",    "$" + totalVentas.toLocaleString("es-CO"));
 
     const tabla = document.getElementById("tablaDatos");
     if (tabla) {
@@ -75,10 +81,10 @@ buscador?.addEventListener("keydown", async (e) => {
 
   try {
     const [productos, usuarios, ventas, gastos] = await Promise.all([
-      fetch(`${API}/productos`, { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/usuarios`,  { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/ventas`,    { credentials: "include" }).then(r => r.json()),
-      fetch(`${API}/gastos`,    { credentials: "include" }).then(r => r.json())
+      fetch(`${API}/productos`, { headers: getHeaders() }).then(r => r.json()),
+      fetch(`${API}/usuarios`,  { headers: getHeaders() }).then(r => r.json()),
+      fetch(`${API}/ventas`,    { headers: getHeaders() }).then(r => r.json()),
+      fetch(`${API}/gastos`,    { headers: getHeaders() }).then(r => r.json())
     ]);
 
     const prod  = productos.find(p => p.nombre?.toLowerCase().includes(q));

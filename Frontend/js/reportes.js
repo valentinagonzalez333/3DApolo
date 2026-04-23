@@ -1,8 +1,14 @@
 const API = "/api";
 
+// ── Auth helper ───────────────────────────────────────────────────────────────
+const getHeaders = () => ({
+  "Authorization": `Bearer ${sessionStorage.getItem("token")}`,
+  "Content-Type": "application/json"
+});
+
 async function verificarSesion() {
   try {
-    const res = await fetch(`${API}/me`, { credentials: "include" });
+    const res = await fetch(`${API}/me`, { headers: getHeaders() });
     if (!res.ok) { window.location.href = "/login"; return false; }
     return true;
   } catch {
@@ -42,7 +48,7 @@ async function cargarResumen() {
   try {
     const res  = await fetch(
       `${API}/reportes/movimientos?anio=${anioActual}&mes=${mesActual}`,
-      { credentials: "include" }
+      { headers: getHeaders() }
     );
     const data = await res.json();
 
@@ -75,7 +81,7 @@ async function cargarVentas() {
   try {
     const res  = await fetch(
       `${API}/ventas/detalle?anio=${anioActual}&mes=${mesActual}`,
-      { credentials: "include" }
+      { headers: getHeaders() }
     );
     const data = await res.json();
     const tbody = document.getElementById("tablaVentas");
@@ -111,7 +117,7 @@ async function cargarGastos() {
   try {
     const res  = await fetch(
       `${API}/reportes/movimientos?anio=${anioActual}&mes=${mesActual}`,
-      { credentials: "include" }
+      { headers: getHeaders() }
     );
     const data = await res.json();
     const tbody = document.getElementById("tablaGastos");
