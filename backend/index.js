@@ -88,6 +88,7 @@ app.post("/api/login", async (req, res) => {
 
     res.json({
       ok: true,
+      token,
       id_usuario: user.id_usuario,
       usuario: user.usuario,
       rol: user.rol
