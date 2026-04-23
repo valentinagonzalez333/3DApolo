@@ -32,6 +32,7 @@ if (!JWT_SECRET) {
 app.set("port", process.env.PORT || 4000);
 
 // ── Middlewares ──────────────────────────────────────────────────────────────
+// En producción (Railway), el origen cambia; usar variable de entorno
 const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:4000";
 
 app.use(cors({
@@ -41,16 +42,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// ── Estáticos ────────────────────────────────────────────────────────────────
-app.use("/uploads", express.static("uploads"));
-
-// ── Servidor ─────────────────────────────────────────────────────────────────
-app.listen(app.get("port"), () => {
-  console.log("✅ Servidor corriendo en el puerto", app.get("port"));
-});
-
-// ── Login ────────────────────────────────────────────────────────────────────
-app.post("/api/login", async (req, res) => {
+app.post("/login", async (req, res) => {
   const { usuario, password } = req.body;
 
   if (!usuario || !password) {
@@ -101,17 +93,47 @@ app.post("/api/login", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("🔥 LOGIN ERROR REAL:", error);
-    res.status(500).json({
-      ok: false,
-      msg: "Error del servidor",
-      error: error.message
-    });
+  console.error("🔥 LOGIN ERROR REAL:", error);
+  res.status(500).json({
+    ok: false,
+    msg: "Error del servidor",
+    error: error.message
+  });
   }
 });
 
+
+// ── Estáticos ────────────────────────────────────────────────────────────────
+// ── Estáticos ────────────────────────────────────────────────────────────────
+app.use("/uploads", express.static("uploads"));
+app.use("/img", express.static(path.join(__dirname, "../Frontend/img")));
+
+// ✅ AGREGA ESTA LÍNEA — sirve todo el Frontend (css, js, img, etc.)
+app.use(express.static(path.join(__dirname, "../Frontend")));
+// ── Servidor ─────────────────────────────────────────────────────────────────
+app.listen(app.get("port"), () => {
+  console.log("✅ Servidor corriendo en el puerto", app.get("port"));
+});
+
+// ── Páginas ──────────────────────────────────────────────────────────────────
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/Info.html"))
+);
+app.get("/login", (req, res) =>
+  res.sendFile(path.join(__dirname, "../Frontend/html/login.html"))
+);
+app.get("/inicio",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/panel.html")));
+app.get("/productos",     verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/productos.html")));
+app.get("/ventas",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/ventas.html")));
+app.get("/gastos",        verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/gastos.html")));
+app.get("/reportes",      verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/reportes.html")));
+app.get("/usuarios",      verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/usuarios.html")));
+app.get("/configuracion", verifyToken, (req, res) => res.sendFile(path.join(__dirname, "../Frontend/html/confi.html")));
+
+// ── Login ────────────────────────────────────────────────────────────────────
+
 // ── Logout ───────────────────────────────────────────────────────────────────
-app.post("/api/logout", (req, res) => {
+app.post("/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -167,8 +189,10 @@ app.put("/api/usuarios/:id", verifyToken, async (req, res) => {
   }
 });
 
-// ── CAMBIAR CONTRASEÑA ────────────────────────────────────────────────────────
-// IMPORTANTE: esta ruta debe ir ANTES de /api/usuarios/:id
+// ── CAMBIAR CONTRASEÑA (admin cambia la de otro usuario) ─────────────────────
+// Ruta: PUT /api/usuarios/pass/:id
+// IMPORTANTE: esta ruta debe ir ANTES de /api/usuarios/:id para que Express
+// no interprete "pass" como un :id
 app.put("/api/usuarios/pass/:id", verifyToken, async (req, res) => {
   const { actual, nueva } = req.body;
   if (!actual || !nueva) {
@@ -196,84 +220,16 @@ app.delete("/api/usuarios/:id", verifyToken, async (req, res) => {
 });
 
 // ── API: Proveedores ─────────────────────────────────────────────────────────
-app.get("/api/proveedores", verifyToken, async (req, res) => {
-  try {
-    res.json(await getProveedores());
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al obtener proveedores" });
-  }
-});
-
-app.post("/api/proveedores", verifyToken, async (req, res) => {
-  try {
-    await crearProveedor(req.body);
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al crear proveedor" });
-  }
-});
-
-app.put("/api/proveedores/:id", verifyToken, async (req, res) => {
-  try {
-    await actualizarProveedor(req.params.id, req.body);
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al actualizar proveedor" });
-  }
-});
-
-app.delete("/api/proveedores/:id", verifyToken, async (req, res) => {
-  try {
-    await eliminarProveedor(req.params.id);
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al eliminar proveedor" });
-  }
-});
+app.get("/api/proveedores",        verifyToken, async (req, res) => res.json(await getProveedores()));
+app.post("/api/proveedores",       verifyToken, async (req, res) => { await crearProveedor(req.body); res.json({ ok: true }); });
+app.put("/api/proveedores/:id",    verifyToken, async (req, res) => { await actualizarProveedor(req.params.id, req.body); res.json({ ok: true }); });
+app.delete("/api/proveedores/:id", verifyToken, async (req, res) => { await eliminarProveedor(req.params.id); res.json({ ok: true }); });
 
 // ── API: Categorías ──────────────────────────────────────────────────────────
-app.get("/api/categorias", verifyToken, async (req, res) => {
-  try {
-    res.json(await getCategorias());
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al obtener categorías" });
-  }
-});
-
-app.post("/api/categorias", verifyToken, async (req, res) => {
-  try {
-    await crearCategoria(req.body);
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al crear categoría" });
-  }
-});
-
-app.put("/api/categorias/:id", verifyToken, async (req, res) => {
-  try {
-    await actualizarCategoria(req.params.id, req.body);
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al actualizar categoría" });
-  }
-});
-
-app.delete("/api/categorias/:id", verifyToken, async (req, res) => {
-  try {
-    await eliminarCategoria(req.params.id);
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al eliminar categoría" });
-  }
-});
+app.get("/api/categorias",        verifyToken, async (req, res) => res.json(await getCategorias()));
+app.post("/api/categorias",       verifyToken, async (req, res) => { await crearCategoria(req.body); res.json({ ok: true }); });
+app.put("/api/categorias/:id",    verifyToken, async (req, res) => { await actualizarCategoria(req.params.id, req.body); res.json({ ok: true }); });
+app.delete("/api/categorias/:id", verifyToken, async (req, res) => { await eliminarCategoria(req.params.id); res.json({ ok: true }); });
 
 // ── API: Productos ───────────────────────────────────────────────────────────
 app.get("/api/productos",        verifyToken, obtenerProductos);
@@ -282,44 +238,10 @@ app.put("/api/productos/:id",    verifyToken, upload.single("imagen"), actualiza
 app.delete("/api/productos/:id", verifyToken, eliminarProducto);
 
 // ── API: Gastos ──────────────────────────────────────────────────────────────
-app.get("/api/gastos", verifyToken, async (req, res) => {
-  try {
-    res.json(await obtenergastos());
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al obtener gastos" });
-  }
-});
-
-app.post("/api/gastos", verifyToken, async (req, res) => {
-  try {
-    await agregarGasto(req.body);
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al agregar gasto" });
-  }
-});
-
-app.put("/api/gastos/:id", verifyToken, async (req, res) => {
-  try {
-    await actualizarGasto(req.params.id, req.body);
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al actualizar gasto" });
-  }
-});
-
-app.delete("/api/gastos/:id", verifyToken, async (req, res) => {
-  try {
-    await eliminarGastoDB(req.params.id);
-    res.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, msg: "Error al eliminar gasto" });
-  }
-});
+app.get("/api/gastos",        verifyToken, async (req, res) => res.json(await obtenergastos()));
+app.post("/api/gastos",       verifyToken, async (req, res) => { await agregarGasto(req.body); res.json({ ok: true }); });
+app.put("/api/gastos/:id",    verifyToken, async (req, res) => { await actualizarGasto(req.params.id, req.body); res.json({ ok: true }); });
+app.delete("/api/gastos/:id", verifyToken, async (req, res) => { await eliminarGastoDB(req.params.id); res.json({ ok: true }); });
 
 // ── API: Ventas y Reportes ───────────────────────────────────────────────────
 app.use("/api/ventas",   verifyToken, ventasRouter);
