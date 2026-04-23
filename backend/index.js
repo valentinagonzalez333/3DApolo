@@ -93,8 +93,12 @@ app.post("/login", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error en login:", error);
-    res.status(500).json({ ok: false, msg: "Error del servidor" });
+  console.error("🔥 LOGIN ERROR REAL:", error);
+  res.status(500).json({
+    ok: false,
+    msg: "Error del servidor",
+    error: error.message
+  });
   }
 });
 
