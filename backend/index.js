@@ -95,7 +95,7 @@ app.post("/api/login", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("🔥 LOGIN ERROR:", error);
+    console.error("LOGIN ERROR:", error);
     res.status(500).json({ ok: false, msg: "Error del servidor", error: error.message });
   }
 });
